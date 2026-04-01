@@ -16,8 +16,6 @@ Skills are modular, drop-in behavior packages for Kiro. Each skill is a self-con
 ## Structure
 
 ```
-skills/
-└── common/
     ├── analysis-method/
     └── self-improving/
 ```
