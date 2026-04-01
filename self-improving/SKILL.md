@@ -13,7 +13,7 @@ triggers:
 
 # Self-Improving
 
-设计基准：[analysis-method](../common/analysis-method/SKILL.md)，维度规则参考 [5w2h-reference.md](../common/analysis-method/5w2h-reference.md)。
+设计基准：[analysis-method](../analysis-method/SKILL.md)，维度规则参考 [5w2h-reference.md](../analysis-method/5w2h-reference.md)。
 
 ## Why
 
