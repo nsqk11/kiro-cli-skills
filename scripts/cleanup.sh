@@ -46,7 +46,9 @@ entries=$(awk -v cutoff="$CUTOFF" '
   }
 ' "$LOG_FILE")
 
-[ -z "$entries" ] && { printf 'No done entries to archive.\n'; exit 0; }
+[ -z "$entries" ] && printf 'No done entries to archive.\n'
+
+if [ -n "$entries" ]; then
 count=$(printf '%s\n' "$entries" | grep -c '^## \[' || true)
 
 if $DRY_RUN; then
@@ -77,7 +79,6 @@ else
     !buf { print }
   ' "$LOG_FILE" > "$LOG_FILE.tmp"
 
-  # Safe replace: only overwrite if tmp was created successfully
   if [ -s "$LOG_FILE.tmp" ] || [ ! -s "$LOG_FILE.tmp" -a "$count" -gt 0 ]; then
     mv -f "$LOG_FILE.tmp" "$LOG_FILE"
   else
@@ -86,5 +87,27 @@ else
     exit 1
   fi
 
-  printf "${GREEN}Archived${NC} %d entries. Done.\n" "$count"
+  printf "${GREEN}Archived${NC} %d entries.\n" "$count"
 fi
+fi
+
+# --- Phase 2: Clean merged KB entries from user-profile ---
+KB_FILE="${KIRO_HOME:-$HOME/.kiro}/resources/knowledgeBase/user-profile/knowledgeBase.md"
+if [ -f "$KB_FILE" ]; then
+  merged=$(grep -c '\[merged to skill:' "$KB_FILE" 2>/dev/null || true)
+  if [ "$merged" -gt 0 ]; then
+    if $DRY_RUN; then
+      printf "${YELLOW}[DRY RUN]${NC} Would remove %d merged KB sections\n" "$merged"
+    else
+      awk '
+        /^### .* \[merged to skill:/ { skip=1; next }
+        /^###? / { skip=0 }
+        !skip { print }
+      ' "$KB_FILE" > "$KB_FILE.tmp"
+      mv -f "$KB_FILE.tmp" "$KB_FILE"
+      printf "${GREEN}Cleaned${NC} %d merged KB sections.\n" "$merged"
+    fi
+  fi
+fi
+
+printf 'Done.\n'
