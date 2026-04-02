@@ -1,13 +1,13 @@
 #!/bin/bash
 # Self-Improving — Skill Router
 # Scans all SKILL.md frontmatter, outputs routing table for LLM context
+set -euo pipefail
 
 SKILLS_ROOT="${KIRO_HOME:-$HOME/.kiro}/skills"
 SKIP="self-improving"
 
-echo "<skill-router>"
-echo "Auto-loaded routing table. When user message matches triggers, fs_read the SKILL.md path."
-echo ""
+printf '<skill-router>\n'
+printf 'Auto-loaded routing table. When user message matches triggers, fs_read the SKILL.md path.\n\n'
 
 for file in "$SKILLS_ROOT"/*/SKILL.md "$SKILLS_ROOT"/*/*/SKILL.md "$SKILLS_ROOT"/*/*/*/SKILL.md; do
   [ -f "$file" ] || continue
@@ -25,4 +25,4 @@ for file in "$SKILLS_ROOT"/*/SKILL.md "$SKILLS_ROOT"/*/*/SKILL.md "$SKILLS_ROOT"
   ' "$file"
 done
 
-echo "</skill-router>"
+printf '</skill-router>\n'
