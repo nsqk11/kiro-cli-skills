@@ -3,8 +3,10 @@
 # Usage: ./stats.sh
 set -euo pipefail
 
-LOG_FILE="${KIRO_HOME:-$HOME/.kiro}/.learnings/LOG.md"
-ARCHIVE_FILE="${KIRO_HOME:-$HOME/.kiro}/.learnings/ARCHIVE.md"
+SKILL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+DATA_DIR="$SKILL_DIR/.data"
+LOG_FILE="$DATA_DIR/log.md"
+ARCHIVE_FILE="$DATA_DIR/archive.md"
 
 # Color detection
 if [ -t 1 ]; then
@@ -15,7 +17,7 @@ fi
 
 printf "${BOLD}═══ Self-Improving Dashboard ═══${NC}\n\n"
 
-[ -f "$LOG_FILE" ] || { printf 'No LOG.md found.\n'; exit 0; }
+[ -f "$LOG_FILE" ] || { printf 'No log.md found.\n'; exit 0; }
 
 # By status
 printf "${BOLD}By Status:${NC}\n"

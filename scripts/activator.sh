@@ -1,15 +1,17 @@
 #!/bin/bash
 # Self-Improving — agentSpawn hook
-# Loads pending LOG entries into context, outputs high-hits from LOG.md Hits field
+# Loads pending LOG entries into context, outputs high-hits from log.md Hits field
 set -euo pipefail
 
-LOG_FILE="${KIRO_HOME:-$HOME/.kiro}/.learnings/LOG.md"
+SKILL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+DATA_DIR="$SKILL_DIR/.data"
+LOG_FILE="$DATA_DIR/log.md"
 MAX_ENTRIES=20
 PROMOTE_THRESHOLD=3
 
 cat << 'EOF'
 <self-improving-active>
-self-improving active. Captures events to $KIRO_HOME/.learnings/LOG.md when:
+self-improving active. Captures events to .data/log.md when:
 - Commands fail unexpectedly (error)
 - User corrects you (correction)
 - Knowledge is outdated (knowledge-gap)
@@ -20,7 +22,7 @@ self-improving active. Captures events to $KIRO_HOME/.learnings/LOG.md when:
 - Environment limitation hit (environment)
 - Non-obvious pitfall found (gotcha)
 - Deprecated item referenced (deprecation)
-Before logging, check: grep -i "keyword" $KIRO_HOME/.learnings/LOG.md
+Before logging, check: grep -i "keyword" .data/log.md
 </self-improving-active>
 EOF
 
@@ -83,8 +85,8 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 bash "$SCRIPT_DIR/skill-router.sh"
 
 # Periodic review check — safe read without source
-REVIEW_STATE="${KIRO_HOME:-$HOME/.kiro}/.learnings/review-state"
-mkdir -p "$(dirname "$REVIEW_STATE")"
+REVIEW_STATE="$DATA_DIR/review-state.txt"
+mkdir -p "$DATA_DIR"
 if [ ! -f "$REVIEW_STATE" ]; then
   printf 'sessions_since_review=0\nlast_review_date=%s\n' "$(date +%Y-%m-%d)" > "$REVIEW_STATE"
 fi
@@ -103,7 +105,7 @@ Periodic review triggered. Check per improve.md 周期性 Review:
 - Skills unused 30+ days → Archive?
 - 3+ pending improvements → Batch update?
 - Scope overlap → Merge?
-After review, reset: echo -e "sessions_since_review=0\nlast_review_date=$(date +%Y-%m-%d)" > $KIRO_HOME/.learnings/review-state
+After review, reset: echo -e "sessions_since_review=0\nlast_review_date=$(date +%Y-%m-%d)" > .data/review-state.txt
 </review-reminder>
 REVIEW
 fi

@@ -41,7 +41,7 @@
                   │      │  detect &    │      │
                   │      │  log events  │      ▼
             ┌─────┴──┐   └──────────────┘   ┌──────────┐
-            │Improve │                      │  LOG.md  │
+            │Improve │                      │ log.md  │
             │ refine │                      │ (buffer) │
             │ skills │                      └────┬─────┘
             └─────┬──┘                           │
@@ -55,12 +55,12 @@
 ### Module Responsibilities
 
 > [!NOTE]
-> Each module has a single responsibility. They communicate exclusively through `LOG.md` and the user-profile KB.
+> Each module has a single responsibility. They communicate exclusively through `log.md` and the knowledge base.
 
 | Module | Input | Output | Responsibility |
 |--------|-------|--------|----------------|
-| [**Capture**](capture.md) | Conversation events | `LOG.md` entries | Detect & record events (errors, corrections, discoveries) |
-| [**Learn**](learn.md) | `LOG.md` pending entries | User-profile KB | Distill events into structured, searchable knowledge |
+| [**Capture**](capture.md) | Conversation events | `log.md` entries | Detect & record events (errors, corrections, discoveries) |
+| [**Learn**](learn.md) | `log.md` pending entries | Knowledge base | Distill events into structured, searchable knowledge |
 | [**Improve**](improve.md) | KB entries with skill tags | Skill files | Route knowledge back into skills, create new skills |
 
 ---
@@ -80,7 +80,7 @@ Session Start                During Session              Session End
      │                           │                         │
      ├─ Load pending LOGs        ├─ Auto-detect errors     ├─ Session review
      ├─ Inject skill-router      │  from tool output       └─ Capture insights
-     └─ Trigger Learn            └─ Write to LOG.md
+     └─ Trigger Learn            └─ Write to log.md
 ```
 
 | Hook | Script | Trigger | Action |
@@ -101,6 +101,15 @@ self-improving/
 ├── 📄 improve.md                  # Skill improvement and routing rules
 ├── 📄 README.md
 ├── 📄 LICENSE
+│
+├── 📂 .data/                      # Personal data (git-ignored)
+│   ├── 📄 log.md                  # Event buffer (pending / done entries)
+│   ├── 📄 archive.md              # Archived done entries
+│   ├── 📄 knowledge-base.md       # Distilled knowledge (user-profile KB)
+│   ├── 📄 hit-counts.txt          # Dedup hit counters
+│   ├── 📄 review-state.txt        # Periodic review tracker
+│   ├── 📄 skill-review-state.json # Skill review state
+│   └── 📄 stop-state.txt          # Stop hook state
 │
 ├── 📂 prompts/
 │   ├── 📄 5W2H-prompt.md          # 7-dimension analysis framework
@@ -172,7 +181,7 @@ All skills created or improved by this system follow a unified standard:
 
 ```bash
 cp -rf self-improving/ $KIRO_HOME/skills/common/self-improving/
-mkdir -p $KIRO_HOME/.learnings
+mkdir -p $KIRO_HOME/skills/common/self-improving/.data
 ```
 
 ### 2. Configure agent hooks
@@ -186,7 +195,7 @@ Add the following to your agent JSON config (e.g. `$KIRO_HOME/agents/your-agent.
 
   "resources": [
     "skill://$KIRO_HOME/skills/common/self-improving/SKILL.md",
-    "file://$KIRO_HOME/resources/knowledgeBase/user-profile/knowledgeBase.md"
+    "file://$KIRO_HOME/skills/common/self-improving/.data/knowledge-base.md"
   ],
 
   "hooks": {
@@ -228,8 +237,8 @@ The `skill-router.sh` auto-discovers all skills by scanning `SKILL.md` frontmatt
          │
          ▼
   ┌──────────────┐     ┌─────────────────────┐
-  │   Capture    │────▶│  $KIRO_HOME/        │
-  │              │     │  .learnings/LOG.md   │
+  │   Capture    │────▶│  .data/log.md        │
+  │              │     │  (event buffer)      │
   └──────────────┘     └──────────┬──────────┘
                                   │
                                   ▼
@@ -240,8 +249,8 @@ The `skill-router.sh` auto-discovers all skills by scanning `SKILL.md` frontmatt
                                   │
                                   ▼
                        ┌──────────────────────┐     ┌──────────────────┐
-                       │  user-profile KB     │────▶│     Improve      │
-                       │  (knowledgeBase.md)  │     │  (≥3 hits →      │
+                       │  .data/              │────▶│     Improve      │
+                       │  knowledge-base.md   │     │  (≥3 hits →      │
                        └──────────────────────┘     │   update skill)  │
                                                     └────────┬─────────┘
                                                              │

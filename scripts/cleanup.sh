@@ -3,8 +3,10 @@
 # Usage: ./cleanup.sh [--dry-run]
 set -euo pipefail
 
-LOG_FILE="${KIRO_HOME:-$HOME/.kiro}/.learnings/LOG.md"
-ARCHIVE="${KIRO_HOME:-$HOME/.kiro}/.learnings/ARCHIVE.md"
+SKILL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+DATA_DIR="$SKILL_DIR/.data"
+LOG_FILE="$DATA_DIR/log.md"
+ARCHIVE="$DATA_DIR/archive.md"
 DRY_RUN=false
 [ "${1:-}" = "--dry-run" ] && DRY_RUN=true
 
@@ -15,13 +17,13 @@ else
   GREEN=''; YELLOW=''; NC=''
 fi
 
-[ -f "$LOG_FILE" ] || { printf 'No LOG.md found.\n'; exit 0; }
+[ -f "$LOG_FILE" ] || { printf 'No log.md found.\n'; exit 0; }
 
 if [ ! -f "$ARCHIVE" ]; then
   $DRY_RUN || cat > "$ARCHIVE" << 'HEADER'
 # Archive
 
-Done entries archived from LOG.md.
+Done entries archived from log.md.
 
 ---
 HEADER
@@ -83,7 +85,7 @@ else
     mv -f "$LOG_FILE.tmp" "$LOG_FILE"
   else
     rm -f "$LOG_FILE.tmp"
-    printf 'Error: temp file creation failed, LOG.md unchanged.\n' >&2
+    printf 'Error: temp file creation failed, log.md unchanged.\n' >&2
     exit 1
   fi
 
@@ -92,7 +94,7 @@ fi
 fi
 
 # --- Phase 2: Clean merged KB entries from user-profile ---
-KB_FILE="${KIRO_HOME:-$HOME/.kiro}/resources/knowledgeBase/user-profile/knowledgeBase.md"
+KB_FILE="$DATA_DIR/knowledge-base.md"
 if [ -f "$KB_FILE" ]; then
   merged=$(grep -c '\[merged to skill:' "$KB_FILE" 2>/dev/null || true)
   if [ "$merged" -gt 0 ]; then

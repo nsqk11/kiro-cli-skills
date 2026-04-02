@@ -9,7 +9,7 @@
 
 ## What
 
-- **do**: 检测对话中的有价值事件，写入 `LOG.md` 作为 pending 条目。只记录，不处理。
+- **do**: 检测对话中的有价值事件，写入 `log.md` 作为 pending 条目。只记录，不处理。
 - **don't**: 不提取知识，不修改 skill，不消费 LOG 条目。
 
 ## Who
@@ -24,7 +24,7 @@
 
 ## Where
 
-- **do**: 写入 `$KIRO_HOME/.learnings/LOG.md`
+- **do**: 写入 `.data/log.md`
 - **don't**: 不写入 KB，不写入 skill 文件。
 
 ## How

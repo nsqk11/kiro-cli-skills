@@ -43,14 +43,14 @@ triggers:
   - 用户建立约定/决策 → Capture
   - 新对话开始且有 pending 条目 → Learn
   - KB 同主题累积 ≥ 3 次 → Improve
-- **don't**: Capture 前先去重：`grep -i "keyword" $KIRO_HOME/.learnings/LOG.md`，已存在则不重复记录。
+- **don't**: Capture 前先去重：`grep -i "keyword" .data/log.md`，已存在则不重复记录。
 
 ## Where
 
 - **do**:
-  - 事件缓冲：`$KIRO_HOME/.learnings/LOG.md`
-  - 知识沉淀：`$KIRO_HOME/resources/knowledgeBase/user-profile/`
-  - 归档：`$KIRO_HOME/.learnings/ARCHIVE.md`
+  - 事件缓冲：`.data/log.md`
+  - 知识沉淀：`.data/knowledge-base.md`
+  - 归档：`.data/archive.md`
 - **don't**: 不操作具体业务 skill 的资源路径（Improve 只修改 skill 文件本身）。
 
 ## How
@@ -61,11 +61,11 @@ triggers:
      ↑                  │
      └──────────────────┘
   ```
-  - Capture → Learn：写入 LOG.md，Learn 在下次对话开始时消费 pending 条目，沉淀到 KB，标记 done
+  - Capture → Learn：写入 log.md，Learn 在下次对话开始时消费 pending 条目，沉淀到 KB，标记 done
   - Learn → Improve：扫描 KB 中未标注归属的条目，判断归属并标注 `[skill: <name>]`，回流到对应 skill
   - Improve → Capture：改进后的 skill 投入使用，新问题继续捕获
   - Hook 驱动：agentSpawn（`scripts/activator.sh`）、postToolUse（`scripts/error-detector.sh`）、stop（`scripts/stop-review.sh`）
-  - LOG.md 超 30 条时 `scripts/cleanup.sh` 归档 done 条目
+  - log.md 超 30 条时 `scripts/cleanup.sh` 归档 done 条目
 - **don't**: 不并行处理模块，严格顺序。不在一个模块中做另一个模块的事。读写分开调用。
 
 ## How much

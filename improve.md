@@ -10,7 +10,7 @@
 ## What
 
 - **do**: 基于 KB 中的知识和周期性 review 信号，判断知识的 skill 归属、改进现有 skill、创建新 skill、管理 skill 路由。
-- **don't**: 不记录事件（Capture 的事），不管理 KB（Learn 的事），不读 LOG.md，不修改 self-improving 自身文件。
+- **don't**: 不记录事件（Capture 的事），不管理 KB（Learn 的事），不读 log.md，不修改 self-improving 自身文件。
 
 ## Who
 
@@ -30,9 +30,9 @@
 ## Where
 
 - **do**:
-  - 输入：`$KIRO_HOME/resources/knowledgeBase/user-profile/knowledgeBase.md`（带 skill 标签的条目）
+  - 输入：`.data/knowledge-base.md`（带 skill 标签的条目）
   - 输出：`$KIRO_HOME/skills/<category>/<name>/SKILL.md`
-- **don't**: 不写入 LOG.md，不写入 KB。
+- **don't**: 不写入 log.md，不写入 KB。
 
 ## How
 

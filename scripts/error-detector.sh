@@ -1,9 +1,11 @@
 #!/bin/bash
 # Self-Improving — postToolUse hook
-# Auto-logs genuine errors to LOG.md
+# Auto-logs genuine errors to log.md
 set -euo pipefail
 
-LOG_FILE="${KIRO_HOME:-$HOME/.kiro}/.learnings/LOG.md"
+SKILL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+DATA_DIR="$SKILL_DIR/.data"
+LOG_FILE="$DATA_DIR/log.md"
 EVENT=$(cat)
 
 if command -v jq &>/dev/null; then
@@ -88,7 +90,7 @@ NEXT_SEQ=$(printf "%03d" $(( 10#${LAST_SEQ:-0} + 1 )))
 LOG_ID="LOG-${TODAY}-${NEXT_SEQ}"
 TIMESTAMP=$(date +%Y-%m-%dT%H:%M:%S%z)
 
-mkdir -p "$(dirname "$LOG_FILE")"
+mkdir -p "$DATA_DIR"
 
 # Use printf to avoid heredoc injection from ERROR_LINE
 {

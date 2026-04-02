@@ -4,12 +4,12 @@
 
 ## Why
 
-- **do**: LOG.md 中的 pending 条目是原始事件，需要消化为结构化、可检索的知识，才能被 Improve 和日常使用所利用。
-- **don't**: 单次出现且不太可能复现的一次性事实，让它们在 LOG.md 中自然老化。
+- **do**: log.md 中的 pending 条目是原始事件，需要消化为结构化、可检索的知识，才能被 Improve 和日常使用所利用。
+- **don't**: 单次出现且不太可能复现的一次性事实，让它们在 log.md 中自然老化。
 
 ## What
 
-- **do**: 消费 LOG.md 中所有 pending 条目，提炼写入 user-profile KB，标记 done。
+- **do**: 消费 log.md 中所有 pending 条目，提炼写入 knowledge-base.md，标记 done。
 - **don't**: 不记录事件（Capture 的事），不修改 skill（Improve 的事），不判断知识归属哪个 skill（Improve 的事）。
 
 ## Who
@@ -25,8 +25,8 @@
 ## Where
 
 - **do**:
-  - 输入：`$KIRO_HOME/.learnings/LOG.md`（pending 条目）
-  - 输出：`$KIRO_HOME/resources/knowledgeBase/user-profile/knowledgeBase.md`
+  - 输入：`.data/log.md`（pending 条目）
+  - 输出：`.data/knowledge-base.md`
 - **don't**: 不写入项目特定 KB。
 
 ## How
