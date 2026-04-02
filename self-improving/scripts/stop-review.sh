@@ -1,7 +1,7 @@
 #!/bin/bash
 # Self-Improving — stop hook
 # Prompts session review per capture.md rules
-set -e
+set -euo pipefail
 
 cat << 'EOF'
 <session-review>
