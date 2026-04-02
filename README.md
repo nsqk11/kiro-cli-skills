@@ -10,14 +10,14 @@ Skills are modular, drop-in behavior packages for Kiro. Each skill is a self-con
 
 | Skill | Description |
 |-------|-------------|
-| [analysis-method](skills/common/analysis-method/) | Structured thinking framework (5W2H) — meta-standard for skill design |
-| [self-improving](skills/common/self-improving/) | Closed-loop self-improvement: Capture → Learn → Improve |
+| [analysis-method](analysis-method/) | Structured thinking framework (5W2H) — meta-standard for skill design |
+| [self-improving](self-improving/) | Closed-loop self-improvement: Capture → Learn → Improve |
 
 ## Structure
 
 ```
-    ├── analysis-method/
-    └── self-improving/
+├── analysis-method/
+└── self-improving/
 ```
 
 ## Usage
