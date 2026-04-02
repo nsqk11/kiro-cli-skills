@@ -168,19 +168,56 @@ All skills created or improved by this system follow a unified standard:
 
 ## 🚀 Quick Start
 
-1. Copy the skill into your Kiro skills directory:
-   ```bash
-   cp -rf self-improving/ $KIRO_HOME/skills/common/self-improving/
-   ```
+### 1. Install the skill
 
-2. Ensure the learnings directory exists:
-   ```bash
-   mkdir -p $KIRO_HOME/.learnings
-   ```
+```bash
+cp -rf self-improving/ $KIRO_HOME/skills/common/self-improving/
+mkdir -p $KIRO_HOME/.learnings
+```
 
-3. The hook scripts auto-activate via Kiro's agent hooks (`agentSpawn`, `postToolUse`, `stop`). No manual configuration needed.
+### 2. Configure agent hooks
 
-4. The `skill-router.sh` auto-discovers all skills by scanning `SKILL.md` frontmatter across your skills directory.
+Add the following to your agent JSON config (e.g. `$KIRO_HOME/agents/your-agent.json`):
+
+```jsonc
+{
+  "name": "your-agent",
+  // ... other fields ...
+
+  "resources": [
+    "skill://$KIRO_HOME/skills/common/self-improving/SKILL.md",
+    "file://$KIRO_HOME/resources/knowledgeBase/user-profile/knowledgeBase.md"
+  ],
+
+  "hooks": {
+    "agentSpawn": [
+      {
+        "command": "$KIRO_HOME/skills/common/self-improving/scripts/activator.sh",
+        "description": "Load pending log entries into context"
+      }
+    ],
+    "postToolUse": [
+      {
+        "command": "$KIRO_HOME/skills/common/self-improving/scripts/error-detector.sh",
+        "description": "Detect errors from any tool and remind to log"
+      }
+    ],
+    "stop": [
+      {
+        "command": "$KIRO_HOME/skills/common/self-improving/scripts/stop-review.sh",
+        "description": "Trigger session-end review"
+      }
+    ]
+  }
+}
+```
+
+> [!IMPORTANT]
+> Replace `$KIRO_HOME` with your actual Kiro root path (e.g. `~/.kiro`).
+
+### 3. Done
+
+The `skill-router.sh` auto-discovers all skills by scanning `SKILL.md` frontmatter — no additional routing config needed.
 
 ---
 
