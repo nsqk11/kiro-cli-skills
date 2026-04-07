@@ -193,7 +193,7 @@ All skills created or improved by this system follow a unified standard:
 # Clone and run the installer — install to any path you like
 git clone https://github.com/nsqk11/self-improving-skill.git
 cd self-improving-skill
-./install.sh /path/to/your/skills/self-improving
+bash install.sh /path/to/your/skills/self-improving
 ```
 
 Or manually copy:
