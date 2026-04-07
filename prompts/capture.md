@@ -1,6 +1,6 @@
 # Capture
 
-规则参考：[5W2H](prompts/5W2H-prompt.md) | [MECE](prompts/MECE-prompt.md)
+规则参考：[5W2H](5w2h.md) | [MECE](mece.md)
 
 ## Why
 

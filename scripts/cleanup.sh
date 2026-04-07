@@ -94,7 +94,7 @@ fi
 fi
 
 # --- Phase 2: Clean merged KB entries from user-profile ---
-KB_FILE="$DATA_DIR/knowledge-base.md"
+KB_FILE="$DATA_DIR/knowledge.md"
 if [ -f "$KB_FILE" ]; then
   merged=$(grep -c '\[merged to skill:' "$KB_FILE" 2>/dev/null || true)
   if [ "$merged" -gt 0 ]; then

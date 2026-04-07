@@ -59,9 +59,9 @@
 
 | Module | Input | Output | Responsibility |
 |--------|-------|--------|----------------|
-| [**Capture**](capture.md) | Conversation events | `log.md` entries | Detect & record events (errors, corrections, discoveries) |
-| [**Learn**](learn.md) | `log.md` pending entries | Knowledge base | Distill events into structured, searchable knowledge |
-| [**Improve**](improve.md) | KB entries with skill tags | Skill files | Route knowledge back into skills, create new skills |
+| [**Capture**](prompts/capture.md) | Conversation events | `log.md` entries | Detect & record events (errors, corrections, discoveries) |
+| [**Learn**](prompts/learn.md) | `log.md` pending entries | Knowledge base | Distill events into structured, searchable knowledge |
+| [**Improve**](prompts/improve.md) | KB entries with skill tags | Skill files | Route knowledge back into skills, create new skills |
 
 ---
 
@@ -73,21 +73,21 @@ The system is fully automated through Kiro's agent hook mechanism:
 Session Start                During Session              Session End
      │                            │                          │
      ▼                            ▼                          ▼
-┌──────────┐              ┌───────────────┐          ┌────────────┐
-│activator │              │error-detector │          │stop-review │
-│   .sh    │              │     .sh       │          │    .sh     │
-└────┬─────┘              └──────┬────────┘          └─────┬──────┘
+┌────────────┐            ┌────────────────┐         ┌────────────┐
+│agent-spawn │            │post-tool-use   │         │  stop      │
+│   .sh      │            │     .sh        │         │    .sh     │
+└────┬───────┘            └──────┬─────────┘         └─────┬──────┘
      │                           │                         │
      ├─ Load pending LOGs        ├─ Auto-detect errors     ├─ Session review
-     ├─ Inject skill-router      │  from tool output       └─ Capture insights
-     └─ Trigger Learn            └─ Write to log.md
+     ├─ Inject skill-router      │  from tool output       ├─ Capture insights
+     └─ Trigger Learn            └─ Write to log.md        └─ Auto-cleanup
 ```
 
 | Hook | Script | Trigger | Action |
 |------|--------|---------|--------|
-| `agentSpawn` | `activator.sh` | Session start | Load pending LOGs, build skill-router, trigger Learn |
-| `postToolUse` | `error-detector.sh` | After each tool call | Auto-detect and log genuine errors |
-| `stop` | `stop-review.sh` | Session end | Prompt session-end review |
+| `agentSpawn` | `hooks/agent-spawn.sh` | Session start | Load pending LOGs, build skill-router, trigger Learn |
+| `postToolUse` | `hooks/post-tool-use.sh` | After each tool call | Auto-detect and log genuine errors |
+| `stop` | `hooks/stop.sh` | Session end | Prompt session-end review + auto-cleanup |
 
 ---
 
@@ -96,33 +96,34 @@ Session Start                During Session              Session End
 ```
 self-improving/
 ├── 📄 SKILL.md                    # Main skill definition (5W2H structure)
-├── 📄 capture.md                  # Event detection and logging rules
-├── 📄 learn.md                    # Knowledge distillation rules
-├── 📄 improve.md                  # Skill improvement and routing rules
 ├── 📄 README.md
 ├── 📄 LICENSE
+│
+├── 📂 prompts/                    # All LLM-consumed content
+│   ├── 📄 capture.md              # Event detection and logging rules
+│   ├── 📄 learn.md                # Knowledge distillation rules
+│   ├── 📄 improve.md              # Skill improvement and routing rules
+│   ├── 📄 5w2h.md                 # 7-dimension analysis framework
+│   └── 📄 mece.md                 # Mutual exclusivity / exhaustiveness checks
+│
+├── 📂 hooks/                      # Agent lifecycle hooks
+│   ├── 🔧 agent-spawn.sh         # agentSpawn hook — loads pending learnings
+│   ├── 🔧 post-tool-use.sh       # postToolUse hook — auto-logs errors
+│   └── 🔧 stop.sh                # stop hook — session-end review + auto-cleanup
+│
+├── 📂 scripts/                    # Tool scripts + shared libs
+│   ├── 🔧 cleanup.sh             # Archives done LOG entries (>30)
+│   ├── 🔧 extract-skill.sh       # Scaffolds new skills
+│   ├── 🔧 skill-router.sh        # Auto-discovers skills via frontmatter
+│   └── 🔧 stats.sh               # Learning statistics dashboard
 │
 ├── 📂 .data/                      # Personal data (git-ignored)
 │   ├── 📄 log.md                  # Event buffer (pending / done entries)
 │   ├── 📄 archive.md              # Archived done entries
-│   ├── 📄 knowledge-base.md       # Distilled knowledge (user-profile KB)
-│   ├── 📄 hit-counts.txt          # Dedup hit counters
-│   ├── 📄 review-state.txt        # Periodic review tracker
-│   ├── 📄 skill-review-state.json # Skill review state
-│   └── 📄 stop-state.txt          # Stop hook state
-│
-├── 📂 prompts/
-│   ├── 📄 5W2H-prompt.md          # 7-dimension analysis framework
-│   └── 📄 MECE-prompt.md          # Mutual exclusivity / exhaustiveness checks
-│
-└── 📂 scripts/
-    ├── 🔧 activator.sh            # agentSpawn hook — loads pending learnings
-    ├── 🔧 error-detector.sh       # postToolUse hook — auto-logs errors
-    ├── 🔧 stop-review.sh          # stop hook — session-end review
-    ├── 🔧 cleanup.sh              # Archives done LOG entries (>30)
-    ├── 🔧 skill-router.sh         # Auto-discovers skills via frontmatter
-    ├── 🔧 extract-skill.sh        # Scaffolds new skills
-    └── 🔧 stats.sh                # Learning statistics dashboard
+│   ├── 📄 knowledge.md            # Distilled knowledge
+│   ├── 📄 dedup-counts.txt        # Dedup hit counters
+│   ├── 📄 review-state.json       # Periodic review tracker
+│   └── 📄 hook-state.txt          # Hook runtime state
 ```
 
 ---
@@ -170,8 +171,8 @@ All skills created or improved by this system follow a unified standard:
 └─────────────────────────────────────────────┘
 ```
 
-- [5W2H Prompt](prompts/5W2H-prompt.md) — 7 dimensions with do/don't for each
-- [MECE Prompt](prompts/MECE-prompt.md) — Independence and exhaustiveness checks
+- [5W2H Prompt](prompts/5w2h.md) — 7 dimensions with do/don't for each
+- [MECE Prompt](prompts/mece.md) — Independence and exhaustiveness checks
 
 ---
 
@@ -195,25 +196,25 @@ Add the following to your agent JSON config (e.g. `$KIRO_HOME/agents/your-agent.
 
   "resources": [
     "skill://$KIRO_HOME/skills/common/self-improving/SKILL.md",
-    "file://$KIRO_HOME/skills/common/self-improving/.data/knowledge-base.md"
+    "file://$KIRO_HOME/skills/common/self-improving/.data/knowledge.md"
   ],
 
   "hooks": {
     "agentSpawn": [
       {
-        "command": "$KIRO_HOME/skills/common/self-improving/scripts/activator.sh",
+        "command": "$KIRO_HOME/skills/common/self-improving/hooks/agent-spawn.sh",
         "description": "Load pending log entries into context"
       }
     ],
     "postToolUse": [
       {
-        "command": "$KIRO_HOME/skills/common/self-improving/scripts/error-detector.sh",
+        "command": "$KIRO_HOME/skills/common/self-improving/hooks/post-tool-use.sh",
         "description": "Detect errors from any tool and remind to log"
       }
     ],
     "stop": [
       {
-        "command": "$KIRO_HOME/skills/common/self-improving/scripts/stop-review.sh",
+        "command": "$KIRO_HOME/skills/common/self-improving/hooks/stop.sh",
         "description": "Trigger session-end review"
       }
     ]
@@ -250,7 +251,7 @@ The `skill-router.sh` auto-discovers all skills by scanning `SKILL.md` frontmatt
                                   ▼
                        ┌──────────────────────┐     ┌──────────────────┐
                        │  .data/              │────▶│     Improve      │
-                       │  knowledge-base.md   │     │  (≥3 hits →      │
+                       │  knowledge.md        │     │  (≥3 hits →      │
                        └──────────────────────┘     │   update skill)  │
                                                     └────────┬─────────┘
                                                              │

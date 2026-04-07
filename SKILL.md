@@ -13,7 +13,7 @@ triggers:
 
 # Self-Improving
 
-规则参考：[5W2H](prompts/5W2H-prompt.md) | [MECE](prompts/MECE-prompt.md)
+规则参考：[5W2H](prompts/5w2h.md) | [MECE](prompts/mece.md)
 
 ## Why
 
@@ -28,9 +28,9 @@ triggers:
 ## Who
 
 - **do**: 三个子模块各司其职：
-  - [Capture](capture.md)：检测并记录事件
-  - [Learn](learn.md)：消化事件、沉淀知识
-  - [Improve](improve.md)：改进其他 skill
+  - [Capture](prompts/capture.md)：检测并记录事件
+  - [Learn](prompts/learn.md)：消化事件、沉淀知识
+  - [Improve](prompts/improve.md)：改进其他 skill
 - **don't**: Capture 不处理知识，Learn 不修改 skill，Improve 不记录事件。
 
 ## When
@@ -49,7 +49,7 @@ triggers:
 
 - **do**:
   - 事件缓冲：`.data/log.md`
-  - 知识沉淀：`.data/knowledge-base.md`
+  - 知识沉淀：`.data/knowledge.md`
   - 归档：`.data/archive.md`
 - **don't**: 不操作具体业务 skill 的资源路径（Improve 只修改 skill 文件本身）。
 
@@ -64,8 +64,8 @@ triggers:
   - Capture → Learn：写入 log.md，Learn 在下次对话开始时消费 pending 条目，沉淀到 KB，标记 done
   - Learn → Improve：扫描 KB 中未标注归属的条目，判断归属并标注 `[skill: <name>]`，回流到对应 skill
   - Improve → Capture：改进后的 skill 投入使用，新问题继续捕获
-  - Hook 驱动：agentSpawn（`scripts/activator.sh`）、postToolUse（`scripts/error-detector.sh`）、stop（`scripts/stop-review.sh`）
-  - log.md 超 30 条时 `scripts/cleanup.sh` 归档 done 条目
+  - Hook 驱动：agentSpawn（`hooks/agent-spawn.sh`）、postToolUse（`hooks/post-tool-use.sh`）、stop（`hooks/stop.sh`）
+  - log.md 超 30 条时 `scripts/cleanup.sh` 归档 done 条目（由 stop hook 自动触发）
 - **don't**: 不并行处理模块，严格顺序。不在一个模块中做另一个模块的事。读写分开调用。不能跳过 Learn 步骤直接从 LOG 改 Skill，Improve 的输入是 KB 不是 LOG。
 
 ## How much

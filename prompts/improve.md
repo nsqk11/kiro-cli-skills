@@ -1,6 +1,6 @@
 # Improve
 
-规则参考：[5W2H](prompts/5W2H-prompt.md) | [MECE](prompts/MECE-prompt.md)
+规则参考：[5W2H](5w2h.md) | [MECE](mece.md)
 
 ## Why
 
@@ -30,7 +30,7 @@
 ## Where
 
 - **do**:
-  - 输入：`.data/knowledge-base.md`（带 skill 标签的条目）
+  - 输入：`.data/knowledge.md`（带 skill 标签的条目）
   - 输出：`$KIRO_HOME/skills/<category>/<name>/SKILL.md`
 - **don't**: 不写入 log.md，不写入 KB。
 
@@ -62,11 +62,11 @@
   - 同类任务重复 3+ 次 / 用户明确要求 → 生成 Skill Candidate
   - 创建前检查：与现有 skill 重叠 > 50% → 建议改进现有 skill
   - 所有 skill 统一标准：
-    - 遵循 [5W2H](prompts/5W2H-prompt.md) 7 维度结构
-    - 维度之间遵循 [MECE](prompts/MECE-prompt.md)
+    - 遵循 [5W2H](5w2h.md) 7 维度结构
+    - 维度之间遵循 [MECE](mece.md)
     - 每个维度写 do/don't
     - 面向 AI 的指令式风格，不写给人读的说明文
-    - 引用 5W2H 和 MECE prompts：`规则参考：[5W2H](prompts/5W2H-prompt.md) | [MECE](prompts/MECE-prompt.md)`
+    - 引用 5W2H 和 MECE prompts：`规则参考：[5W2H](5w2h.md) | [MECE](mece.md)`
   - 质量门：triggers 覆盖常见表述、description 脱离上下文可理解、无硬编码路径
   - 创建后确保 frontmatter 正确，`skill-router.sh` 自动纳入路由表
 

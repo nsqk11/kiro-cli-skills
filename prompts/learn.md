@@ -1,6 +1,6 @@
 # Learn
 
-规则参考：[5W2H](prompts/5W2H-prompt.md) | [MECE](prompts/MECE-prompt.md)
+规则参考：[5W2H](5w2h.md) | [MECE](mece.md)
 
 ## Why
 
@@ -9,7 +9,7 @@
 
 ## What
 
-- **do**: 消费 log.md 中所有 pending 条目，提炼写入 knowledge-base.md，标记 done。
+- **do**: 消费 log.md 中所有 pending 条目，提炼写入 knowledge.md，标记 done。
 - **don't**: 不记录事件（Capture 的事），不修改 skill（Improve 的事），不判断知识归属哪个 skill（Improve 的事）。
 
 ## Who
@@ -26,7 +26,7 @@
 
 - **do**:
   - 输入：`.data/log.md`（pending 条目）
-  - 输出：`.data/knowledge-base.md`
+  - 输出：`.data/knowledge.md`
 - **don't**: 不写入项目特定 KB。
 
 ## How

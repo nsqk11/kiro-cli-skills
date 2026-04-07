@@ -81,18 +81,19 @@ if [ -n "$PROMOTE_LIST" ]; then
 fi
 
 # Skill routing table
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-bash "$SCRIPT_DIR/skill-router.sh"
+# Skill routing table
+bash "$SKILL_DIR/scripts/skill-router.sh"
 
-# Periodic review check — safe read without source
-REVIEW_STATE="$DATA_DIR/review-state.txt"
+# Periodic review check
+REVIEW_STATE="$DATA_DIR/review-state.json"
 mkdir -p "$DATA_DIR"
 if [ ! -f "$REVIEW_STATE" ]; then
-  printf 'sessions_since_review=0\nlast_review_date=%s\n' "$(date +%Y-%m-%d)" > "$REVIEW_STATE"
+  printf '{"sessions_since_review":0,"last_review_date":"%s","skill_review":{"last_review":"%s","conversation_count":0}}\n' \
+    "$(date +%Y-%m-%d)" "$(date -Iseconds)" > "$REVIEW_STATE"
 fi
 
-sessions_since_review=$(awk -F= '/^sessions_since_review=/{print $2}' "$REVIEW_STATE")
-last_review_date=$(awk -F= '/^last_review_date=/{print $2}' "$REVIEW_STATE")
+sessions_since_review=$(awk -F'[:,}]' '/"sessions_since_review"/{gsub(/[^0-9]/,"",$2);print $2}' "$REVIEW_STATE")
+last_review_date=$(awk -F'"' '/"last_review_date"/{print $4}' "$REVIEW_STATE")
 sessions_since_review=$(( ${sessions_since_review:-0} + 1 ))
 days_since=$(( ( $(date +%s) - $(date -d "${last_review_date:-$(date +%Y-%m-%d)}" +%s) ) / 86400 ))
 
@@ -105,8 +106,8 @@ Periodic review triggered. Check per improve.md 周期性 Review:
 - Skills unused 30+ days → Archive?
 - 3+ pending improvements → Batch update?
 - Scope overlap → Merge?
-After review, reset: echo -e "sessions_since_review=0\nlast_review_date=$(date +%Y-%m-%d)" > .data/review-state.txt
+After review, reset sessions_since_review to 0 and last_review_date to today in .data/review-state.json
 </review-reminder>
 REVIEW
 fi
-sed -i "s/^sessions_since_review=.*/sessions_since_review=$sessions_since_review/" "$REVIEW_STATE"
+sed -i "s/\"sessions_since_review\":[0-9]*/\"sessions_since_review\":$sessions_since_review/" "$REVIEW_STATE"

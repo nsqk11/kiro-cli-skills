@@ -13,3 +13,13 @@ Session ending. Per capture.md, do a session review:
 Skip silently if conversation was trivial.
 </session-review>
 EOF
+
+# Auto-cleanup: archive done entries when log exceeds 30
+SKILL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+LOG_FILE="$SKILL_DIR/.data/log.md"
+if [ -f "$LOG_FILE" ]; then
+  count=$(grep -c '^## \[LOG-' "$LOG_FILE" 2>/dev/null || true)
+  if [ "${count:-0}" -gt 30 ]; then
+    bash "$SKILL_DIR/scripts/cleanup.sh" 2>/dev/null || true
+  fi
+fi
