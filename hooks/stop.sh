@@ -3,6 +3,8 @@
 # Prompts session review per capture.md rules
 set -euo pipefail
 
+. "$(dirname "$0")/../scripts/lib.sh"
+
 cat << 'EOF'
 <session-review>
 Session ending. Per capture.md, do a session review:
@@ -15,11 +17,9 @@ Skip silently if conversation was trivial.
 EOF
 
 # Auto-cleanup: archive done entries when log exceeds 30
-SKILL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-LOG_FILE="$SKILL_DIR/.data/log.md"
-if [ -f "$LOG_FILE" ]; then
-  count=$(grep -c '^## \[LOG-' "$LOG_FILE" 2>/dev/null || true)
+if [ -f "$LIB_LOG_FILE" ]; then
+  count=$(count_log_entries "$LIB_LOG_FILE")
   if [ "${count:-0}" -gt 30 ]; then
-    bash "$SKILL_DIR/scripts/cleanup.sh" 2>/dev/null || true
+    bash "$LIB_SKILL_DIR/scripts/cleanup.sh" 2>/dev/null || true
   fi
 fi

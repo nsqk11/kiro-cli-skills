@@ -3,9 +3,8 @@
 # Loads pending LOG entries into context, outputs high-hits from log.md Hits field
 set -euo pipefail
 
-SKILL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-DATA_DIR="$SKILL_DIR/.data"
-LOG_FILE="$DATA_DIR/log.md"
+. "$(dirname "$0")/../scripts/lib.sh"
+
 MAX_ENTRIES=20
 PROMOTE_THRESHOLD=3
 
@@ -26,27 +25,10 @@ Before logging, check: grep -i "keyword" .data/log.md
 </self-improving-active>
 EOF
 
-[ -f "$LOG_FILE" ] || exit 0
+[ -f "$LIB_LOG_FILE" ] || exit 0
 
-# Collect pending entries: ID, Type, Summary, Tags, Hits
-PENDING=$(awk '
-  /^## \[LOG-/ {
-    id=$0; sub(/^## /, "", id); sub(/\].*/, "]", id)
-    type=$0; sub(/.*\] */, "", type)
-    summary=""; tags=""; hits=""; is_pending=0; next
-  }
-  /Status\*\*: pending/ { is_pending=1; next }
-  /Hits\*\*:/ { hits=$0; sub(/.*Hits\*\*: */, "", hits); sub(/ .*/, "", hits); next }
-  /^### Summary/ {
-    if ((getline line) > 0) summary=line
-    next
-  }
-  /Tags\*\*:/ { tags=$0; sub(/.*Tags\*\*: */, "", tags); next }
-  /^---$/ {
-    if (is_pending && summary != "") print id "\t" type "\t" summary "\t" tags "\t" hits
-    is_pending=0
-  }
-' "$LOG_FILE")
+# Collect pending entries using shared parser
+PENDING=$(parse_pending_entries "$LIB_LOG_FILE")
 
 [ -z "$PENDING" ] && exit 0
 
@@ -65,7 +47,7 @@ while IFS=$'\t' read -r id type summary tags hits; do
 done <<< "$PENDING"
 printf '</pending-logs>\n'
 
-# High-hits entries (from LOG.md Hits field directly)
+# High-hits entries
 PROMOTE_LIST=""
 while IFS=$'\t' read -r id type summary tags hits; do
   if [ "${hits:-0}" -ge "$PROMOTE_THRESHOLD" ]; then
@@ -81,19 +63,19 @@ if [ -n "$PROMOTE_LIST" ]; then
 fi
 
 # Skill routing table
-# Skill routing table
-bash "$SKILL_DIR/scripts/skill-router.sh"
+bash "$LIB_SKILL_DIR/scripts/skill-router.sh"
 
 # Periodic review check
-REVIEW_STATE="$DATA_DIR/review-state.json"
-mkdir -p "$DATA_DIR"
-if [ ! -f "$REVIEW_STATE" ]; then
+mkdir -p "$LIB_DATA_DIR"
+if [ ! -f "$LIB_REVIEW_STATE" ]; then
   printf '{"sessions_since_review":0,"last_review_date":"%s","skill_review":{"last_review":"%s","conversation_count":0}}\n' \
-    "$(date +%Y-%m-%d)" "$(date -Iseconds)" > "$REVIEW_STATE"
+    "$(date +%Y-%m-%d)" "$(date -Iseconds)" > "$LIB_REVIEW_STATE"
 fi
 
-sessions_since_review=$(awk -F'[:,}]' '/"sessions_since_review"/{gsub(/[^0-9]/,"",$2);print $2}' "$REVIEW_STATE")
-last_review_date=$(awk -F'"' '/"last_review_date"/{print $4}' "$REVIEW_STATE")
+sessions_since_review=$(jq -r '.sessions_since_review // 0' "$LIB_REVIEW_STATE" 2>/dev/null || \
+  awk -F'[:,}]' '/"sessions_since_review"/{gsub(/[^0-9]/,"",$2);print $2}' "$LIB_REVIEW_STATE")
+last_review_date=$(jq -r '.last_review_date // empty' "$LIB_REVIEW_STATE" 2>/dev/null || \
+  awk -F'"' '/"last_review_date"/{print $4}' "$LIB_REVIEW_STATE")
 sessions_since_review=$(( ${sessions_since_review:-0} + 1 ))
 days_since=$(( ( $(date +%s) - $(date -d "${last_review_date:-$(date +%Y-%m-%d)}" +%s) ) / 86400 ))
 
@@ -110,4 +92,4 @@ After review, reset sessions_since_review to 0 and last_review_date to today in 
 </review-reminder>
 REVIEW
 fi
-sed -i "s/\"sessions_since_review\":[0-9]*/\"sessions_since_review\":$sessions_since_review/" "$REVIEW_STATE"
+sed -i "s/\"sessions_since_review\":[0-9]*/\"sessions_since_review\":$sessions_since_review/" "$LIB_REVIEW_STATE"

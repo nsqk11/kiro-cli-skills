@@ -92,6 +92,7 @@ self-improving/
 │   ├── post-tool-use.sh
 │   └── stop.sh
 ├── scripts/                 # Utilities
+│   ├── lib.sh               # Shared patterns & functions
 │   ├── cleanup.sh           # Archives old log entries
 │   ├── skill-router.sh      # Auto-discovers skills
 │   ├── extract-skill.sh     # Scaffolds new skills
