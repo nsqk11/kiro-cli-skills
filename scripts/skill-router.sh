@@ -3,7 +3,7 @@
 # Scans all SKILL.md frontmatter, outputs routing table for LLM context
 set -euo pipefail
 
-SKILLS_ROOT="${KIRO_HOME:-$HOME/.kiro}/skills"
+SKILLS_ROOT="${1:-${KIRO_HOME:-$HOME/.kiro}/skills}"
 SKIP="self-improving"
 
 printf '<skill-router>\n'

@@ -1,52 +1,52 @@
 # Capture
 
-规则参考：[5W2H](5w2h.md) | [MECE](mece.md)
+Reference: [5W2H](5w2h.md) | [MECE](mece.md)
 
 ## Why
 
-- **do**: 对话中产生的有价值事件（错误、纠正、新发现等）如果不及时捕获就会丢失。
-- **don't**: 没有具体触发事件的猜测性内容不捕获。no event = no log。
+- **do**: Valuable events in conversation — errors, corrections, discoveries — are lost if not captured promptly.
+- **don't**: No speculative content without a concrete trigger event. No event = no log.
 
 ## What
 
-- **do**: 检测对话中的有价值事件，写入 `log.md` 作为 pending 条目。只记录，不处理。
-- **don't**: 不提取知识，不修改 skill，不消费 LOG 条目。
+- **do**: Detect valuable events in conversation and write them to `log.md` as pending entries. Record only — do not process.
+- **don't**: Do not extract knowledge, modify skills, or consume LOG entries.
 
 ## Who
 
-- **do**: Capture 模块。子步骤中 `grep` 负责去重检查。
-- **don't**: 不做 Learn 或 Improve 的事。
+- **do**: Capture module. Uses `grep` for dedup checks in sub-steps.
+- **don't**: Does not do Learn's or Improve's job.
 
 ## When
 
-- **do**: 检测到直接信号或间接信号时触发（见 [检测触发表](#检测触发表)）。会话结束时（stop hook）进行 session-end review。用户说 `/save`、"记一下" 时触发 Quick Save。
-- **don't**: 先去重，已存在则更新 Hits 而非新建条目。
+- **do**: Triggered on direct or indirect signals (see [Detection Trigger Table](#detection-trigger-table)). Session-end review runs via the stop hook. Quick Save triggers on user commands like `/save`.
+- **don't**: Always deduplicate first — if it already exists, increment Hits instead of creating a new entry.
 
 ## Where
 
-- **do**: 写入 `.data/log.md`
-- **don't**: 不写入 KB，不写入 skill 文件。
+- **do**: Write to `.data/log.md`
+- **don't**: Do not write to KB or skill files.
 
 ## How
 
 - **do**:
-  1. 检测事件（信号类型见 [检测触发表](#检测触发表)）
-  2. 去重：先 `grep -F "Pattern-Key"` 精确匹配，再 `grep -i "关键词"` 模糊匹配
-  3. 有匹配 → Hits +1，追加日期；无匹配 → 新建条目
-  4. 按 [条目格式](#条目格式) 写入
-  5. session-summary 跳过去重（每条唯一）
-- **don't**: 不链式执行命令，读写分开调用。
+  1. Detect event (signal types in [Detection Trigger Table](#detection-trigger-table))
+  2. Dedup: `grep -F "Pattern-Key"` for exact match, then `grep -i "keyword"` for fuzzy match
+  3. Match found → Hits +1, append date; no match → create new entry
+  4. Write using [Entry Format](#entry-format)
+  5. session-summary entries skip dedup (each is unique per session)
+- **don't**: Do not chain commands — separate read and write calls.
 
 ## How much
 
-- **do**: 每个事件一条条目。ID 格式 `LOG-YYYYMMDD-XXX`。Hits ≥ 3 为高优先级。
-- **don't**: 去重后仍重复的不记。
+- **do**: One entry per event. ID format: `LOG-YYYYMMDD-XXX`. Hits ≥ 3 = high priority.
+- **don't**: No duplicates after dedup.
 
 ---
 
-## 检测触发表
+## Detection Trigger Table
 
-### 事件类型
+### Event Types
 
 | Situation | Type |
 |-----------|------|
@@ -65,24 +65,26 @@
 | End-of-session summary | `session-summary` |
 | Skill improvement suggestion | `skill-improvement` |
 
-### 间接信号
+### Indirect Signals
+
+The user may not state intent explicitly. Watch for these patterns (examples in both Chinese and English):
 
 | User Says | Likely Meaning |
 |-----------|---------------|
-| "这样做能对吗？"、"确定吗？" | Correction — verify before proceeding |
-| "我记得不是这样的"、"之前你说的是..." | Correction or knowledge-gap |
-| "有没有其他方式"、"能不能..." | Feature-request or improvement |
-| "有必要吗？"、"为什么不..."、"不能直接...吗？" | Suggesting a better approach |
-| "好的"/"可以" after you explain a limitation | Resigned acceptance (feature-request) |
-| "重新改"、"改回去"、"不对重来" | Previous approach was wrong |
+| "Is this right?" / "Are you sure?" / "这样做能对吗？" / "确定吗？" | Correction — verify before proceeding |
+| "I remember it differently" / "You said before..." / "我记得不是这样的" / "之前你说的是..." | Correction or knowledge-gap |
+| "Is there another way?" / "Can you..." / "有没有其他方式" / "能不能..." | Feature-request or improvement |
+| "Is that necessary?" / "Why not..." / "Can't we just...?" / "有必要吗？" / "为什么不..." / "不能直接...吗？" | Suggesting a better approach |
+| "OK" / "Fine" after you explain a limitation / "好的" / "可以"（在你解释限制之后） | Resigned acceptance → likely feature-request |
+| "Redo it" / "Revert" / "That's wrong, start over" / "重新改" / "改回去" / "不对重来" | Previous approach was wrong |
 
 ### Self-Improving Detection
 
-对话中途意识到用户之前在纠正/请求/建议但当时没捕获到——记录用户原话为 `user-pattern`，使触发检测随时间自我改进。
+If you realize mid-conversation that the user was correcting, requesting, or suggesting something earlier but it wasn't captured at the time — log the user's original words as `user-pattern`. This makes trigger detection improve over time.
 
 ---
 
-## 条目格式
+## Entry Format
 
 ```markdown
 ## [LOG-YYYYMMDD-XXX] type
@@ -102,7 +104,7 @@ Full context (error messages, user's exact words, trigger scenario, etc.)
 
 ### Pattern-Key
 
-可选的稳定去重键，格式 `domain.topic`。同 Pattern-Key 条目自动关联用于模式检测。Hits ≥ 3 + Pattern-Key = 强 skill 候选信号。一次性事件不加。
+Optional stable dedup key in `domain.topic` format. Entries sharing the same Pattern-Key are automatically linked for pattern detection. Hits ≥ 3 + Pattern-Key = strong skill candidate signal. Do not add for one-off events.
 
 ### Priority Guidelines
 

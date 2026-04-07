@@ -1,19 +1,19 @@
 # MECE
 
-对任何分类、分解、维度划分，执行以下检查：
+For any classification, decomposition, or dimension split, run these checks:
 
-## 独立性检查
+## Mutual Exclusivity
 
-每个子项只覆盖一个不重叠的范围。若一条内容可归属多个子项，则分类有重叠——需重新切分。
+Each sub-item covers one non-overlapping scope. If a piece of content could belong to multiple sub-items, the classification has overlap — re-partition.
 
-## 穷尽性检查
+## Collective Exhaustiveness
 
-所有子项合起来覆盖整体，无遗漏。若能举出一个不属于任何子项的反例，则分类有遗漏——需补充。
+All sub-items together cover the whole. If you can find a counterexample that fits none of the sub-items, the classification has a gap — add the missing item.
 
-## 切分约束
+## Partitioning Constraints
 
-- 每次分解必须在同一维度上切分
-- 分解问题根源和制定解决方案是两个独立步骤，不混合
-- 分解后各部分独立，但解决时要考虑部分之间的依赖和相互影响
+- Each decomposition must split along a single dimension
+- Root-cause analysis and solution design are two separate steps — do not mix them
+- After decomposition, parts are independent; when solving, consider dependencies and interactions between parts
 
-> 参考：[MECE分析法](https://baike.baidu.com/item/MECE%E5%88%86%E6%9E%90%E6%B3%95)
+> Reference: [MECE Principle](https://en.wikipedia.org/wiki/MECE_principle)

@@ -13,66 +13,66 @@ triggers:
 
 # Self-Improving
 
-规则参考：[5W2H](prompts/5w2h.md) | [MECE](prompts/mece.md)
+Reference: [5W2H](prompts/5w2h.md) | [MECE](prompts/mece.md)
 
 ## Why
 
-- **do**: 知识会过时、操作会出错、能力会有缺口。闭环机制自动捕获这些事件，沉淀为知识，反哺到 skill。
-- **don't**: 一次性任务或不需要积累经验的场景不使用。
+- **do**: Knowledge decays, operations fail, capabilities have gaps. The closed-loop mechanism automatically captures these events, distills them into knowledge, and feeds improvements back into skills.
+- **don't**: Not for one-off tasks or scenarios where accumulated experience adds no value.
 
 ## What
 
-- **do**: 三模块闭环——Capture（捕获事件）→ Learn（沉淀知识）→ Improve（改进 skill）。将错误、纠正、新发现等事件转化为持久化知识和 skill 改进。
-- **don't**: 不执行业务逻辑，不替代具体 skill，不修改自身文件。
+- **do**: Three-module closed loop — Capture (detect events) → Learn (distill knowledge) → Improve (refine skills). Turns errors, corrections, and discoveries into persistent knowledge and concrete skill improvements.
+- **don't**: Does not execute business logic, does not replace domain-specific skills, does not modify its own files.
 
 ## Who
 
-- **do**: 三个子模块各司其职：
-  - [Capture](prompts/capture.md)：检测并记录事件
-  - [Learn](prompts/learn.md)：消化事件、沉淀知识
-  - [Improve](prompts/improve.md)：改进其他 skill
-- **don't**: Capture 不处理知识，Learn 不修改 skill，Improve 不记录事件。
+- **do**: Three sub-modules, each with a single responsibility:
+  - [Capture](prompts/capture.md): Detect and log events
+  - [Learn](prompts/learn.md): Digest events into knowledge
+  - [Improve](prompts/improve.md): Feed knowledge back into skills
+- **don't**: Capture does not process knowledge. Learn does not modify skills. Improve does not record events.
 
 ## When
 
 - **do**:
-  - 命令/工具执行失败 → Capture
-  - 用户纠正 → Capture
-  - 知识过时或缺失 → Capture
-  - 更好的方法被发现 → Capture
-  - 用户建立约定/决策 → Capture
-  - 新对话开始且有 pending 条目 → Learn
-  - KB 同主题累积 ≥ 3 次 → Improve
-- **don't**: Capture 前先去重：`grep -i "keyword" .data/log.md`，已存在则不重复记录。
+  - Command/tool execution fails → Capture
+  - User corrects the assistant → Capture
+  - Knowledge is outdated or missing → Capture
+  - Better approach discovered → Capture
+  - User establishes a convention or decision → Capture
+  - New session starts with pending entries → Learn
+  - Same topic accumulates ≥ 3 hits in KB → Improve
+- **don't**: Always deduplicate before capturing: `grep -i "keyword" .data/log.md` — skip if already logged.
 
 ## Where
 
 - **do**:
-  - 事件缓冲：`.data/log.md`
-  - 知识沉淀：`.data/knowledge.md`
-  - 归档：`.data/archive.md`
-- **don't**: 不操作具体业务 skill 的资源路径（Improve 只修改 skill 文件本身）。
+  - Event buffer: `.data/log.md`
+  - Knowledge store: `.data/knowledge.md`
+  - Archive: `.data/archive.md`
+- **don't**: Does not touch other skills' resource paths (Improve only modifies skill definition files).
 
 ## How
 
-- **do**: 三模块顺序流水线，通过 LOG.md 通信：
+- **do**: Three-module sequential pipeline communicating through log.md:
   ```
   Capture → Learn → Improve
      ↑                  │
      └──────────────────┘
   ```
-  - Capture → Learn：写入 log.md，Learn 在下次对话开始时消费 pending 条目，沉淀到 KB，标记 done
-  - Learn → Improve：扫描 KB 中未标注归属的条目，判断归属并标注 `[skill: <name>]`，回流到对应 skill
-  - Improve → Capture：改进后的 skill 投入使用，新问题继续捕获
-  - Hook 驱动：agentSpawn（`hooks/agent-spawn.sh`）、postToolUse（`hooks/post-tool-use.sh`）、stop（`hooks/stop.sh`）
-  - log.md 超 30 条时 `scripts/cleanup.sh` 归档 done 条目（由 stop hook 自动触发）
-- **don't**: 不并行处理模块，严格顺序。不在一个模块中做另一个模块的事。读写分开调用。不能跳过 Learn 步骤直接从 LOG 改 Skill，Improve 的输入是 KB 不是 LOG。
+  - Capture → Learn: Events are written to log.md. At next session start, Learn consumes pending entries, distills them into KB, and marks them done.
+  - Learn → Improve: Scans KB for entries without skill attribution, assigns `[skill: <name>]` tags, and merges them into the corresponding skill files.
+  - Improve → Capture: Improved skills go into use; new issues continue to be captured.
+  - Hook-driven: agentSpawn (`hooks/agent-spawn.sh`), postToolUse (`hooks/post-tool-use.sh`), stop (`hooks/stop.sh`)
+  - When log.md exceeds 30 done entries, `scripts/cleanup.sh` archives them (triggered automatically by the stop hook).
+- **don't**: Modules run strictly in sequence — never in parallel. Each module does only its own job. Read and write in separate calls. Never skip Learn to go directly from LOG to Skill — Improve's input is KB, not LOG.
 
 ## How much
 
 - **do**:
-  - Capture：每个事件一条 LOG 条目
-  - Learn：每次消费所有 pending 条目，无遗留
-  - Improve：同主题 ≥ 3 次才触发 skill 修改；小缺口可即时修复
-  - agentSpawn 最多加载 20 条 pending 条目
-- **don't**: 去重后仍重复的不记。未达阈值的模式不急于修改 skill。
+  - Capture: One LOG entry per event
+  - Learn: Consume all pending entries each run — no leftovers
+  - Improve: Same topic ≥ 3 hits triggers skill modification; small gaps may be fixed immediately
+  - agentSpawn loads at most 20 pending entries per session
+- **don't**: No duplicates after dedup. Don't rush to modify skills for patterns below threshold.

@@ -98,6 +98,9 @@ self-improving/
 ├── 📄 SKILL.md                    # Main skill definition (5W2H structure)
 ├── 📄 README.md
 ├── 📄 LICENSE
+├── 📄 CONTRIBUTING.md
+├── 📄 CHANGELOG.md
+├── 📄 install.sh                  # One-click installer
 │
 ├── 📂 prompts/                    # All LLM-consumed content
 │   ├── 📄 capture.md              # Event detection and logging rules
@@ -116,6 +119,12 @@ self-improving/
 │   ├── 🔧 extract-skill.sh       # Scaffolds new skills
 │   ├── 🔧 skill-router.sh        # Auto-discovers skills via frontmatter
 │   └── 🔧 stats.sh               # Learning statistics dashboard
+│
+├── 📂 .data-template/              # Initial data files for new installs
+│   └── (knowledge.md, log.md, archive.md, review-state.json, ...)
+│
+├── 📂 examples/                   # Example configurations
+│   └── 📄 agent-config.json       # Ready-to-use agent config template
 │
 ├── 📂 .data/                      # Personal data (git-ignored)
 │   ├── 📄 log.md                  # Event buffer (pending / done entries)
@@ -181,49 +190,42 @@ All skills created or improved by this system follow a unified standard:
 ### 1. Install the skill
 
 ```bash
-cp -rf self-improving/ $KIRO_HOME/skills/common/self-improving/
-mkdir -p $KIRO_HOME/skills/common/self-improving/.data
+# Clone and run the installer — install to any path you like
+git clone https://github.com/nsqk11/self-improving-skill.git
+cd self-improving-skill
+./install.sh /path/to/your/skills/self-improving
 ```
+
+Or manually copy:
+
+```bash
+cp -rf self-improving/ /path/to/your/skills/self-improving/
+mkdir -p /path/to/your/skills/self-improving/.data
+```
+
+> [!NOTE]
+> The skill can live anywhere on your filesystem. There is no required directory structure — just use the absolute path in your agent config.
 
 ### 2. Configure agent hooks
 
-Add the following to your agent JSON config (e.g. `$KIRO_HOME/agents/your-agent.json`):
+Copy `examples/agent-config.json` and replace `<SKILL_PATH>` with the actual path where you installed the skill:
 
 ```jsonc
 {
   "name": "your-agent",
-  // ... other fields ...
 
   "resources": [
-    "skill://$KIRO_HOME/skills/common/self-improving/SKILL.md",
-    "file://$KIRO_HOME/skills/common/self-improving/.data/knowledge.md"
+    "skill:///path/to/self-improving/SKILL.md",
+    "file:///path/to/self-improving/.data/knowledge.md"
   ],
 
   "hooks": {
-    "agentSpawn": [
-      {
-        "command": "$KIRO_HOME/skills/common/self-improving/hooks/agent-spawn.sh",
-        "description": "Load pending log entries into context"
-      }
-    ],
-    "postToolUse": [
-      {
-        "command": "$KIRO_HOME/skills/common/self-improving/hooks/post-tool-use.sh",
-        "description": "Detect errors from any tool and remind to log"
-      }
-    ],
-    "stop": [
-      {
-        "command": "$KIRO_HOME/skills/common/self-improving/hooks/stop.sh",
-        "description": "Trigger session-end review"
-      }
-    ]
+    "agentSpawn": [{ "command": "/path/to/self-improving/hooks/agent-spawn.sh" }],
+    "postToolUse": [{ "command": "/path/to/self-improving/hooks/post-tool-use.sh" }],
+    "stop": [{ "command": "/path/to/self-improving/hooks/stop.sh" }]
   }
 }
 ```
-
-> [!IMPORTANT]
-> Replace `$KIRO_HOME` with your actual Kiro root path (e.g. `~/.kiro`).
 
 ### 3. Done
 
@@ -261,6 +263,17 @@ The `skill-router.sh` auto-discovers all skills by scanning `SKILL.md` frontmatt
                                                     │  (SKILL.md)      │
                                                     └──────────────────┘
 ```
+
+---
+
+## 📋 Prerequisites & Compatibility
+
+| Requirement | Details |
+|-------------|---------|
+| Kiro CLI | Any version with `agentSpawn`, `postToolUse`, `stop` hook support |
+| Shell | Bash 4.0+ |
+| OS | Linux, macOS (scripts use `grep`, `sed`, `awk`, `jq`) |
+| macOS note | Uses GNU-compatible `sed` syntax; install `gnu-sed` via Homebrew if needed |
 
 ---
 

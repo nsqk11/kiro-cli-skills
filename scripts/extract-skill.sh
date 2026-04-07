@@ -1,11 +1,8 @@
 #!/bin/bash
 # Skill Extraction Helper — creates skill scaffold from template
-# Usage: ./extract-skill.sh <category> <skill-name> [--dry-run]
+# Usage: ./extract-skill.sh <target-dir> <skill-name> [--dry-run]
 set -euo pipefail
 
-SKILLS_ROOT="${KIRO_HOME:-$HOME/.kiro}/skills"
-
-# Color detection
 if [ -t 1 ]; then
   GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; NC='\033[0m'
 else
@@ -14,28 +11,26 @@ fi
 
 usage() {
   cat << EOF
-Usage: $(basename "$0") <category> <skill-name> [--dry-run]
+Usage: $(basename "$0") <target-dir> <skill-name> [--dry-run]
 
-Categories: common, work, personal
-Skill name: lowercase, hyphens only (e.g. docker-fixes)
+target-dir:  Parent directory where the skill folder will be created
+skill-name:  Lowercase, hyphens only (e.g. docker-fixes)
 
 Examples:
-  $(basename "$0") common api-patterns
-  $(basename "$0") work nds-review --dry-run
+  $(basename "$0") ~/.kiro/skills api-patterns
+  $(basename "$0") /opt/kiro/skills/work nds-review --dry-run
 EOF
   exit 1
 }
 
 [ $# -lt 2 ] && usage
 
-CATEGORY="$1"; SKILL_NAME="$2"; DRY_RUN=false
+TARGET_DIR="$1"; SKILL_NAME="$2"; DRY_RUN=false
 [ "${3:-}" = "--dry-run" ] && DRY_RUN=true
 
-# Validate
-case "$CATEGORY" in common|work|personal) ;; *) printf "${RED}Invalid category: %s${NC}\n" "$CATEGORY"; usage ;; esac
 [[ "$SKILL_NAME" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]] || { printf "${RED}Invalid name. Use lowercase + hyphens.${NC}\n"; exit 1; }
 
-SKILL_PATH="$SKILLS_ROOT/$CATEGORY/$SKILL_NAME"
+SKILL_PATH="$TARGET_DIR/$SKILL_NAME"
 [ -d "$SKILL_PATH" ] && { printf "${RED}Already exists: %s${NC}\n" "$SKILL_PATH"; exit 1; }
 
 TITLE=$(printf '%s' "$SKILL_NAME" | sed 's/-/ /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2))}1')
@@ -48,6 +43,8 @@ triggers:
 ---
 
 # $TITLE
+
+Reference: [5W2H](5w2h.md) | [MECE](mece.md)
 
 ## Why
 

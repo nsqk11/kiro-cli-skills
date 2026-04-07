@@ -1,0 +1,30 @@
+{
+  "name": "your-agent",
+  "model": "claude-sonnet",
+
+  "resources": [
+    "skill://<SKILL_PATH>/SKILL.md",
+    "file://<SKILL_PATH>/.data/knowledge.md"
+  ],
+
+  "hooks": {
+    "agentSpawn": [
+      {
+        "command": "<SKILL_PATH>/hooks/agent-spawn.sh",
+        "description": "Load pending log entries into context"
+      }
+    ],
+    "postToolUse": [
+      {
+        "command": "<SKILL_PATH>/hooks/post-tool-use.sh",
+        "description": "Detect errors from tool output and log them"
+      }
+    ],
+    "stop": [
+      {
+        "command": "<SKILL_PATH>/hooks/stop.sh",
+        "description": "Trigger session-end review and auto-cleanup"
+      }
+    ]
+  }
+}

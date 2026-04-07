@@ -1,85 +1,85 @@
 # Improve
 
-规则参考：[5W2H](5w2h.md) | [MECE](mece.md)
+Reference: [5W2H](5w2h.md) | [MECE](mece.md)
 
 ## Why
 
-- **do**: 知识沉淀到 KB 后，需要反哺到 skill 中才能真正改变行为。Improve 将积累的知识转化为 skill 的实际改进。
-- **don't**: 单次出现的问题不急于改 skill，等待复现确认模式。
+- **do**: Knowledge sitting in KB only changes behavior once it's fed back into skills. Improve turns accumulated knowledge into concrete skill improvements.
+- **don't**: One-off issues — wait for recurrence to confirm a pattern before modifying skills.
 
 ## What
 
-- **do**: 基于 KB 中的知识和周期性 review 信号，判断知识的 skill 归属、改进现有 skill、创建新 skill、管理 skill 路由。
-- **don't**: 不记录事件（Capture 的事），不管理 KB（Learn 的事），不读 log.md，不修改 self-improving 自身文件。
+- **do**: Based on KB entries and periodic review signals: assign skill attribution, improve existing skills, create new skills, manage skill routing.
+- **don't**: Do not record events (Capture's job), manage KB (Learn's job), read log.md, or modify self-improving's own files.
 
 ## Who
 
-- **do**: Improve 模块。子步骤中 `fs_read` 加载 skill，`str_replace` 修改 skill，`scripts/extract-skill.sh` 生成新 skill 脚手架。
-- **don't**: 不做 Capture 或 Learn 的事。
+- **do**: Improve module. Uses `fs_read` to load skills, `str_replace` to modify them, `scripts/extract-skill.sh` to scaffold new skills.
+- **don't**: Does not do Capture's or Learn's job.
 
 ## When
 
 - **do**:
-  - 对话开始时（Learn 完成后）：扫描 KB 中 `[skill: <name>]` 条目，回流到对应 skill
-  - 用户话题匹配 skill triggers 时：按需加载 skill
-  - 使用 skill 过程中发现小缺口时：即时修复
-  - 周期性 review（每 20 次对话或 7 天）
-  - 用户明确说"做成 skill"时：立即创建
-- **don't**: KB 同主题未达 3 次阈值时不主动改 skill。用户不同意的方案不自动执行。
+  - At session start (after Learn completes): scan KB for `[skill: <name>]` entries and merge them into corresponding skills
+  - When user's topic matches a skill's triggers: load the skill on demand
+  - When a small gap is found while using a skill: fix immediately
+  - Periodic review (every 20 sessions or 7 days)
+  - When user explicitly asks to "make it a skill": create immediately
+- **don't**: Do not modify skills when the same topic has < 3 hits in KB. Do not auto-execute proposals the user hasn't approved.
 
 ## Where
 
 - **do**:
-  - 输入：`.data/knowledge.md`（带 skill 标签的条目）
-  - 输出：`$KIRO_HOME/skills/<category>/<name>/SKILL.md`
-- **don't**: 不写入 log.md，不写入 KB。
+  - Input: `.data/knowledge.md` (entries with skill tags)
+  - Output: The target skill's `SKILL.md` (path depends on where the user installed their skills — no fixed location)
+- **don't**: Do not write to log.md or KB.
 
 ## How
 
 - **do**:
 
-  ### Skill 路由
-  1. agentSpawn 时 `scripts/skill-router.sh` 扫描所有 SKILL.md frontmatter，生成 `<skill-router>` 路由表注入上下文
-  2. 用户请求 → 匹配路由表中各 skill 的 `triggers`
-  3. 匹配到 → 立即 `fs_read` 加载，不询问
-  4. 一个请求可触发多个 skill；加载后 session 内保持活跃
-  5. 不确定 → 不加载，等更明确的信号
+  ### Skill Routing
+  1. At agentSpawn, `scripts/skill-router.sh` scans all `SKILL.md` frontmatter and injects a `<skill-router>` routing table into context
+  2. User request → match against each skill's `triggers` in the routing table
+  3. Match found → immediately `fs_read` the skill, no confirmation needed
+  4. One request may trigger multiple skills; loaded skills stay active for the session
+  5. Uncertain → do not load, wait for a clearer signal
 
-  ### KB → Skill 回流
-  1. 扫描 KB 中未标注 skill 归属的条目
-  2. 判断归属，标注 `[skill: <name>]` 或 `[skill: none]`
-  3. 将 `[skill: <name>]` 条目合并到对应 skill 的相关 section
-  4. 标记 KB 条目为 `[merged to skill: <name>]`
-  5. 通知用户
+  ### KB → Skill Feedback
+  1. Scan KB for entries without skill attribution
+  2. Determine attribution, tag as `[skill: <name>]` or `[skill: none]`
+  3. Merge `[skill: <name>]` entries into the relevant section of the corresponding skill
+  4. Mark KB entry as `[merged to skill: <name>]`
+  5. Notify user
 
-  ### 变更控制
-  | 类型 | 示例 | 动作 |
-  |------|------|------|
-  | Minor | 加 tip、修措辞、加示例 | 自动修改，通知用户 |
-  | Major | 新建/删除 skill、改 When/triggers、重构 | 先提议，等用户确认 |
+  ### Change Control
+  | Type | Examples | Action |
+  |------|----------|--------|
+  | Minor | Add tip, fix wording, add example | Auto-apply, notify user |
+  | Major | Create/delete skill, change triggers, restructure | Propose first, wait for user confirmation |
 
-  ### Skill 发现与创建
-  - 同类任务重复 3+ 次 / 用户明确要求 → 生成 Skill Candidate
-  - 创建前检查：与现有 skill 重叠 > 50% → 建议改进现有 skill
-  - 所有 skill 统一标准：
-    - 遵循 [5W2H](5w2h.md) 7 维度结构
-    - 维度之间遵循 [MECE](mece.md)
-    - 每个维度写 do/don't
-    - 面向 AI 的指令式风格，不写给人读的说明文
-    - 引用 5W2H 和 MECE prompts：`规则参考：[5W2H](5w2h.md) | [MECE](mece.md)`
-  - 质量门：triggers 覆盖常见表述、description 脱离上下文可理解、无硬编码路径
-  - 创建后确保 frontmatter 正确，`skill-router.sh` 自动纳入路由表
+  ### Skill Discovery & Creation
+  - Same type of task repeats 3+ times / user explicitly requests → generate Skill Candidate
+  - Before creating: check overlap with existing skills > 50% → suggest improving the existing skill instead
+  - All skills follow a unified standard:
+    - [5W2H](5w2h.md) 7-dimension structure
+    - [MECE](mece.md) between dimensions
+    - do/don't for each dimension
+    - Instruction-style for AI execution, not human-readable documentation
+    - Reference line: `Reference: [5W2H](5w2h.md) | [MECE](mece.md)`
+  - Quality gate: triggers cover common phrasings, description is understandable without context, no hardcoded paths
+  - After creation, ensure frontmatter is correct so `skill-router.sh` picks it up automatically
 
-  ### 周期性 Review
-  每 20 次对话或 7 天自动提醒：重复 tag 3+ → Skill Candidate？30 天未用 → 归档？3+ 待改进 → 批量更新？scope 重叠 → 合并？
+  ### Periodic Review
+  Every 20 sessions or 7 days, auto-prompt: recurring tag 3+ → Skill Candidate? Unused 30+ days → archive? 3+ pending improvements → batch update? Overlapping scope → merge?
 
-- **don't**: 不为一次性任务创建 skill。不为已有 skill 覆盖的主题重复创建。cosmetic 改动无功能影响的跳过。
+- **don't**: Do not create skills for one-off tasks. Do not duplicate skills that already cover the topic. Skip cosmetic changes with no functional impact.
 
 ## How much
 
 - **do**:
-  - 回流：每条 `[skill: <name>]` 条目都处理，无遗留
-  - 发现阈值：同主题 3+ 次才提议新 skill
-  - 用户纠正同一行为 2+ 次 → 更新 skill
-  - 即时修复限于 minor 变更
-- **don't**: 未达阈值的模式不改 skill。major 变更未经用户确认不执行。
+  - Feedback: process every `[skill: <name>]` entry — no leftovers
+  - Discovery threshold: same topic 3+ times before proposing a new skill
+  - User corrects the same behavior 2+ times → update the skill
+  - Immediate fixes are limited to minor changes
+- **don't**: Do not modify skills for patterns below threshold. Do not execute major changes without user confirmation.
