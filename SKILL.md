@@ -66,7 +66,7 @@ triggers:
   - Improve → Capture：改进后的 skill 投入使用，新问题继续捕获
   - Hook 驱动：agentSpawn（`scripts/activator.sh`）、postToolUse（`scripts/error-detector.sh`）、stop（`scripts/stop-review.sh`）
   - log.md 超 30 条时 `scripts/cleanup.sh` 归档 done 条目
-- **don't**: 不并行处理模块，严格顺序。不在一个模块中做另一个模块的事。读写分开调用。
+- **don't**: 不并行处理模块，严格顺序。不在一个模块中做另一个模块的事。读写分开调用。不能跳过 Learn 步骤直接从 LOG 改 Skill，Improve 的输入是 KB 不是 LOG。
 
 ## How much
 

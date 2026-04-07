@@ -85,7 +85,7 @@ fi
 
 # Generate next LOG ID
 TODAY=$(date +%Y%m%d)
-LAST_SEQ=$(grep -oP "LOG-${TODAY}-\\K\\d+" "$LOG_FILE" 2>/dev/null | sort -n | tail -1)
+LAST_SEQ=$({ grep -oP "LOG-${TODAY}-\\K\\d+" "$LOG_FILE" 2>/dev/null || true; } | sort -n | tail -1)
 NEXT_SEQ=$(printf "%03d" $(( 10#${LAST_SEQ:-0} + 1 )))
 LOG_ID="LOG-${TODAY}-${NEXT_SEQ}"
 TIMESTAMP=$(date +%Y-%m-%dT%H:%M:%S%z)
