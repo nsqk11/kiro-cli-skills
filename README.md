@@ -40,7 +40,7 @@ Copy [`examples/agent-config.json`](examples/agent-config.json) into your agent 
 ```jsonc
 {
   "resources": [
-    "skill://<SKILL_PATH>/SKILL.md"
+    "file://<SKILL_PATH>/SKILL.md"
   ],
   "hooks": {
     "agentSpawn":        [{ "command": "<SKILL_PATH>/hooks/agent-spawn.sh" }],

@@ -31,9 +31,9 @@ for item in SKILL.md README.md LICENSE CONTRIBUTING.md CHANGELOG.md install.sh p
 done
 
 # Initialize .data from template
-if [ -d "$SRC_DIR/.data-template" ]; then
+if [ -d "$SRC_DIR/data-template" ]; then
   mkdir -p "$TARGET/.data"
-  for f in "$SRC_DIR/.data-template"/*; do
+  for f in "$SRC_DIR/data-template"/*; do
     base="$(basename "$f")"
     [ -e "$TARGET/.data/$base" ] || cp -f "$f" "$TARGET/.data/$base"
   done
