@@ -65,8 +65,8 @@ reset
 $SI add -t convention -k "skilltest" -s "skill entry" >/dev/null
 id=$(jq -r '.[0].id' "$DATA")
 $SI resolve -i "$id" >/dev/null
-$SI graduate -i "$id" -S "Tool Usage" -k "ca-wow" >/dev/null
-assert "skill set" "ca-wow" "$(jq -r '.[0].skill' "$DATA")"
+$SI graduate -i "$id" -S "Tool Usage" -k "my-skill" >/dev/null
+assert "skill set" "my-skill" "$(jq -r '.[0].skill' "$DATA")"
 
 echo "=== mem list filters ==="
 reset

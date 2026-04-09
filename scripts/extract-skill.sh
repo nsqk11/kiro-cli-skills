@@ -18,7 +18,7 @@ skill-name:  Lowercase, hyphens only (e.g. docker-fixes)
 
 Examples:
   $(basename "$0") ~/.kiro/skills api-patterns
-  $(basename "$0") /opt/kiro/skills/work nds-review --dry-run
+  $(basename "$0") /opt/kiro/skills/work my-skill --dry-run
 EOF
   exit 1
 }
