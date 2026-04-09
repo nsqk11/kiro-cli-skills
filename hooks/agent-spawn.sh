@@ -1,18 +1,18 @@
 #!/bin/bash
 # Self-Improving — agentSpawn hook
-# Loads memory + pending entries via si.sh
+# Loads memory + pending entries via mem.sh
 set -euo pipefail
 
 SKILL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-SI="bash $SKILL_DIR/scripts/si.sh"
+SI="bash $SKILL_DIR/scripts/mem.sh"
 REVIEW_STATE="$SKILL_DIR/.data/review-state.json"
 
 cat << 'EOF'
 <self-improving-active>
-self-improving active. Use `si.sh` to capture events:
-  bash scripts/si.sh add -t TYPE -k "keywords" -s "summary" [-d "detail"]
+self-improving active. Use `mem.sh` to capture events:
+  bash scripts/mem.sh add -t TYPE -k "keywords" -s "summary" [-d "detail"]
 Types: error, correction, knowledge-gap, improvement, feature-request, convention, decision, workflow, user-pattern, environment, gotcha, deprecation
-Before adding, si.sh auto-deduplicates by keyword.
+Before adding, mem.sh auto-deduplicates by keyword.
 </self-improving-active>
 EOF
 

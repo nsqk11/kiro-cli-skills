@@ -1,8 +1,8 @@
 #!/bin/bash
 set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SI="bash $SCRIPT_DIR/../si.sh"
-DATA="$SCRIPT_DIR/../../.data/si.json"
+SI="bash $SCRIPT_DIR/../mem.sh"
+DATA="$SCRIPT_DIR/../../.data/mem.json"
 PASS=0 FAIL=0
 
 assert() {
@@ -25,7 +25,7 @@ assert_contains() {
 
 reset() { echo '[]' > "$DATA"; }
 
-echo "=== si add ==="
+echo "=== mem add ==="
 reset
 out=$($SI add -t error -k "test,demo" -s "test summary" -d "test detail")
 assert "add returns OK" "OK: added" "${out:0:9}"
@@ -33,30 +33,30 @@ assert "json has 1 entry" "1" "$(jq length "$DATA")"
 assert "status is open" "open" "$(jq -r '.[0].status' "$DATA")"
 assert "type is error" "error" "$(jq -r '.[0].type' "$DATA")"
 
-echo "=== si add dedup ==="
+echo "=== mem add dedup ==="
 out=$($SI add -t error -k "test" -s "another" 2>&1 || true)
 assert_contains "dedup detected" "DUPLICATE" "$out"
 assert "still 1 entry" "1" "$(jq length "$DATA")"
 
-echo "=== si search ==="
+echo "=== mem search ==="
 out=$($SI search -k "test")
 assert_contains "search finds entry" "test summary" "$out"
 out=$($SI search -k "nonexistent")
 assert "search no match" "" "$out"
 
-echo "=== si resolve ==="
+echo "=== mem resolve ==="
 id=$(jq -r '.[0].id' "$DATA")
 $SI resolve -i "$id" -r "fixed it" >/dev/null
 assert "status is done" "done" "$(jq -r '.[0].status' "$DATA")"
 assert "resolution set" "fixed it" "$(jq -r '.[0].resolution' "$DATA")"
 
-echo "=== si graduate ==="
+echo "=== mem graduate ==="
 $SI graduate -i "$id" -S "Preferences" >/dev/null
 assert "status is graduated" "graduated" "$(jq -r '.[0].status' "$DATA")"
 assert "section set" "Preferences" "$(jq -r '.[0].section' "$DATA")"
 assert "skill defaults none" "none" "$(jq -r '.[0].skill' "$DATA")"
 
-echo "=== si graduate with skill ==="
+echo "=== mem graduate with skill ==="
 reset
 $SI add -t convention -k "skilltest" -s "skill entry" >/dev/null
 id=$(jq -r '.[0].id' "$DATA")
@@ -64,14 +64,14 @@ $SI resolve -i "$id" >/dev/null
 $SI graduate -i "$id" -S "Tool Usage" -k "ca-wow" >/dev/null
 assert "skill set" "ca-wow" "$(jq -r '.[0].skill' "$DATA")"
 
-echo "=== si list filters ==="
+echo "=== mem list filters ==="
 reset
 $SI add -t error -k "a" -s "entry1" >/dev/null
 $SI add -t correction -k "b" -s "entry2" >/dev/null
 assert "list all = 2" "2" "$(echo "$($SI list)" | wc -l | tr -d ' ')"
 assert "list --type error = 1" "1" "$(echo "$($SI list --type error)" | wc -l | tr -d ' ')"
 
-echo "=== si memory ==="
+echo "=== mem memory ==="
 reset
 $SI add -t gotcha -k "mem1" -s "memory test" >/dev/null
 id=$(jq -r '.[0].id' "$DATA")

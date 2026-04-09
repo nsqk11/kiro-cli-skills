@@ -1,11 +1,11 @@
 #!/bin/bash
 # si — self-improving single-file CLI
-# Data: .data/si.json (array of entries)
+# Data: .data/mem.json (array of entries)
 # Lifecycle: open → done → graduated
 
 set -euo pipefail
 SKILL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-DATA="$SKILL_DIR/.data/si.json"
+DATA="$SKILL_DIR/.data/mem.json"
 [ -f "$DATA" ] || echo '[]' > "$DATA"
 
 cmd="${1:-help}"; shift || true
@@ -88,7 +88,7 @@ memory)
 
 help)
   cat <<'EOF'
-si — self-improving CLI
+mem — self-improving memory CLI
   add      -t TYPE -k "kw,..." -s "summary" [-d "detail"]
   resolve  -i ID [-r "resolution"]
   graduate -i ID -S "section" [-k "skill-name"]

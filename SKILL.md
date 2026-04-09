@@ -17,15 +17,15 @@ Reference: [5W2H](prompts/5w2h.md) | [MECE](prompts/mece.md)
 
 ## Data Store
 
-Single file `.data/si.json` managed by `scripts/si.sh`. Entry lifecycle: `open → done → graduated`.
+Single file `.data/mem.json` managed by `scripts/mem.sh`. Entry lifecycle: `open → done → graduated`.
 
 ```
-bash scripts/si.sh add      -t TYPE -k "kw,..." -s "summary" [-d "detail"]
-bash scripts/si.sh resolve  -i ID [-r "resolution"]
-bash scripts/si.sh graduate -i ID -S "section" [-k "skill-name"]
-bash scripts/si.sh list     [--status S] [--skill S] [--type T]
-bash scripts/si.sh search   -k "keyword"
-bash scripts/si.sh memory   # graduated + skill:none → context loading
+bash scripts/mem.sh add      -t TYPE -k "kw,..." -s "summary" [-d "detail"]
+bash scripts/mem.sh resolve  -i ID [-r "resolution"]
+bash scripts/mem.sh graduate -i ID -S "section" [-k "skill-name"]
+bash scripts/mem.sh list     [--status S] [--skill S] [--type T]
+bash scripts/mem.sh search   -k "keyword"
+bash scripts/mem.sh memory   # graduated + skill:none → context loading
 ```
 
 ## Why
@@ -49,11 +49,11 @@ bash scripts/si.sh memory   # graduated + skill:none → context loading
   - Command/tool fails, user corrects, knowledge outdated, better approach, convention/decision → Capture
   - New session with pending entries → Learn
   - Same topic ≥ 3 hits → Improve
-- **don't**: si.sh auto-deduplicates by keyword. If duplicate detected, review existing entry instead.
+- **don't**: mem.sh auto-deduplicates by keyword. If duplicate detected, review existing entry instead.
 
 ## Where
 
-- **do**: `.data/si.json` (single data store) | `scripts/si.sh` (CLI)
+- **do**: `.data/mem.json` (single data store) | `scripts/mem.sh` (CLI)
 - **don't**: Does not touch other skills' resource paths.
 
 ## How
@@ -68,8 +68,8 @@ Strictly sequential. Hook-driven: agentSpawn, postToolUse, userPromptSubmit, sto
 
 ### Capture
 
-1. Detect event → `bash scripts/si.sh add -t TYPE -k "keywords" -s "summary"`
-2. si.sh handles dedup automatically (exit 2 = duplicate found)
+1. Detect event → `bash scripts/mem.sh add -t TYPE -k "keywords" -s "summary"`
+2. mem.sh handles dedup automatically (exit 2 = duplicate found)
 3. Do not chain commands — separate read and write calls
 
 #### Event Types
@@ -103,10 +103,10 @@ If you realize mid-conversation a correction/request wasn't captured — log the
 
 ### Learn
 
-1. `bash scripts/si.sh list --status open` — review pending entries
-2. Resolve entries: `bash scripts/si.sh resolve -i ID -r "resolution"`
-3. Graduate mature entries: `bash scripts/si.sh graduate -i ID -S "section"` (skill:none by default)
-4. If entry belongs to a skill: `bash scripts/si.sh graduate -i ID -S "section" -k "skill-name"`
+1. `bash scripts/mem.sh list --status open` — review pending entries
+2. Resolve entries: `bash scripts/mem.sh resolve -i ID -r "resolution"`
+3. Graduate mature entries: `bash scripts/mem.sh graduate -i ID -S "section"` (skill:none by default)
+4. If entry belongs to a skill: `bash scripts/mem.sh graduate -i ID -S "section" -k "skill-name"`
 
 User correction always wins — overwrite without asking.
 
@@ -124,9 +124,9 @@ User correction always wins — overwrite without asking.
 3. Multiple skills may load; uncertain → wait for clearer signal
 
 #### Graduated → Skill Feedback
-1. `bash scripts/si.sh list --status graduated --skill none` — unattributed entries
+1. `bash scripts/mem.sh list --status graduated --skill none` — unattributed entries
 2. Merge into corresponding skill's SKILL.md
-3. Re-graduate with skill: `bash scripts/si.sh graduate -i ID -S "section" -k "skill-name"`
+3. Re-graduate with skill: `bash scripts/mem.sh graduate -i ID -S "section" -k "skill-name"`
 
 #### Change Control
 
@@ -153,4 +153,4 @@ At session end (stop hook), if significant work was done:
 ## How much
 
 - **do**: One entry per event. Learn consumes all pending — no leftovers. Improve: ≥ 3 hits triggers skill mod; user corrects same behavior 2+ times → update skill. agentSpawn loads memory + pending.
-- **don't**: No duplicates (si.sh enforces). Don't modify skills below threshold. Don't execute major changes without confirmation.
+- **don't**: No duplicates (mem.sh enforces). Don't modify skills below threshold. Don't execute major changes without confirmation.

@@ -1,10 +1,10 @@
 #!/bin/bash
 # Self-Improving — postToolUse hook
-# Auto-logs genuine errors via si.sh
+# Auto-logs genuine errors via mem.sh
 set -euo pipefail
 
 SKILL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-SI="bash $SKILL_DIR/scripts/si.sh"
+SI="bash $SKILL_DIR/scripts/mem.sh"
 
 EVENT=$(cat)
 
@@ -42,7 +42,7 @@ esac
 [ "$IS_ERROR" = false ] && exit 0
 [ -z "$ERROR_LINE" ] && ERROR_LINE="Unknown error from $TOOL_NAME"
 
-# Try to add; si.sh handles dedup (exit 2 = duplicate)
+# Try to add; mem.sh handles dedup (exit 2 = duplicate)
 OUT=$($SI add -t error -k "$TOOL_NAME" -s "$ERROR_LINE" 2>&1) || true
 
 if [[ "$OUT" == DUPLICATE* ]]; then

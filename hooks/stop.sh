@@ -4,7 +4,7 @@
 set -euo pipefail
 
 SKILL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-SI="bash $SKILL_DIR/scripts/si.sh"
+SI="bash $SKILL_DIR/scripts/mem.sh"
 
 OPEN=$($SI list --status open 2>/dev/null)
 OPEN_COUNT=0
@@ -14,10 +14,10 @@ cat << EOF
 <session-review>
 Session ending. Quick review:
 1. Any uncaptured events this session? (error/correction/gotcha/convention)
-   → bash scripts/si.sh add -t TYPE -k "kw" -s "summary"
+   → bash scripts/mem.sh add -t TYPE -k "kw" -s "summary"
 2. Open entries: $OPEN_COUNT
 3. Any entry ready to graduate?
-   → bash scripts/si.sh graduate -i ID -S "section"
+   → bash scripts/mem.sh graduate -i ID -S "section"
 Skip silently if conversation was trivial.
 </session-review>
 EOF
