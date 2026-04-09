@@ -1,8 +1,8 @@
 #!/bin/bash
 set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SI="bash $SCRIPT_DIR/si.sh"
-DATA="$SCRIPT_DIR/../.data/si.json"
+SI="bash $SCRIPT_DIR/../si.sh"
+DATA="$SCRIPT_DIR/../../.data/si.json"
 PASS=0 FAIL=0
 
 assert() {
