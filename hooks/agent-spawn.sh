@@ -54,4 +54,4 @@ After review, reset via: jq '.sessions_since_review=0|.last_review_date="TODAY"'
 </review-reminder>
 REVIEW
 fi
-sed -i "s/\"sessions_since_review\":[0-9]*/\"sessions_since_review\":$sessions/" "$REVIEW_STATE"
+jq --argjson s "$sessions" '.sessions_since_review = $s' "$REVIEW_STATE" > "$REVIEW_STATE.tmp" && mv -f "$REVIEW_STATE.tmp" "$REVIEW_STATE"
