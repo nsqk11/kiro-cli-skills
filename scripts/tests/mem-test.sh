@@ -1,8 +1,12 @@
 #!/bin/bash
 set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SI="bash $SCRIPT_DIR/../mem.sh"
-DATA="$SCRIPT_DIR/../../.data/mem.json"
+TEST_DIR=$(mktemp -d)
+trap 'rm -rf "$TEST_DIR"' EXIT
+# Copy mem.sh and override DATA path to isolate from production
+sed "s|\$SKILL_DIR/.data/mem.json|$TEST_DIR/mem.json|" "$SCRIPT_DIR/../mem.sh" > "$TEST_DIR/mem.sh"
+SI="bash $TEST_DIR/mem.sh"
+DATA="$TEST_DIR/mem.json"
 PASS=0 FAIL=0
 
 assert() {
