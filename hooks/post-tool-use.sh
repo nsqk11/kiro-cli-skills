@@ -49,9 +49,10 @@ case "$TOOL_NAME" in
     fi
     ;;
   fs_read)
-    if matches_error "$RESPONSE" "$PAT_FS_READ"; then
+    # Only check first 3 lines — full file content often contains "Error:" as normal text
+    if matches_error "$(head -3 <<< "$RESPONSE")" "$PAT_FS_READ"; then
       IS_ERROR=true
-      ERROR_LINE=$(extract_error "$RESPONSE" "$PAT_FS_READ")
+      ERROR_LINE=$(extract_error "$(head -3 <<< "$RESPONSE")" "$PAT_FS_READ")
     fi
     ;;
   *)

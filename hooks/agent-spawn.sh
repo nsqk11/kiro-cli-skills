@@ -83,7 +83,7 @@ if [ "$sessions_since_review" -ge 20 ] || [ "$days_since" -ge 7 ]; then
   cat << 'REVIEW'
 
 <review-reminder>
-Periodic review triggered. Check per improve.md 周期性 Review:
+Periodic review triggered. Check per SKILL.md Periodic Review:
 - Repeated tags 3+ → Skill Candidate?
 - Skills unused 30+ days → Archive?
 - 3+ pending improvements → Batch update?
