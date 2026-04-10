@@ -7,13 +7,12 @@ SKILL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 SI="bash $SKILL_DIR/scripts/mem.sh"
 REVIEW_STATE="$SKILL_DIR/.data/review-state.json"
 
-printf '
+cat << EOF
 <self-improving-active>
-SKILL_DIR=%s
-' "$SKILL_DIR"
-cat "$SKILL_DIR/SKILL.md"
-printf '</self-improving-active>
-'
+SKILL_DIR=$SKILL_DIR
+Immediately fs_read $SKILL_DIR/SKILL.md and follow its instructions for the entire conversation.
+</self-improving-active>
+EOF
 
 # Memory: graduated entries not bound to any skill
 MEMORY=$($SI memory 2>/dev/null)
