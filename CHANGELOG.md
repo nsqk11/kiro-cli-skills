@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0] - 2026-04-10
+
+### Changed
+- **userPromptSubmit hook**: replace grep-based keyword matching with AI-driven capture detection
+- Remove all regex signal patterns; inject `<capture-check>` directive on every message
+- AI uses full conversation context to classify signals — eliminates false positives and missed detections
+
 ## [0.6.1] - 2026-04-10
 
 ### Changed
