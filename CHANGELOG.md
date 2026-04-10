@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.2] - 2026-04-10
+
+### Fixed
+- Add missing `userPromptSubmit` hook to `examples/agent-config.json`
+
 ## [0.5.1] - 2026-04-10
 
 ### Changed

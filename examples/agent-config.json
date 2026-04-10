@@ -11,6 +11,12 @@
         "description": "Load pending log entries into context"
       }
     ],
+    "userPromptSubmit": [
+      {
+        "command": "<SKILL_PATH>/hooks/user-prompt-submit.sh",
+        "description": "Detect correction signals in user messages"
+      }
+    ],
     "postToolUse": [
       {
         "command": "<SKILL_PATH>/hooks/post-tool-use.sh",
