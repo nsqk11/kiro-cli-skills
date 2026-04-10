@@ -48,7 +48,7 @@ Copy [`examples/agent-config.json`](examples/agent-config.json) into your agent 
 }
 ```
 
-> SKILL.md is not added to `resources`. The `agentSpawn` hook injects `SKILL_DIR` and instructs the agent to read SKILL.md at session start.
+> SKILL.md is not added to `resources`. The `agentSpawn` hook inlines SKILL.md content directly into the context, ensuring 100% reliable loading without requiring the agent to make a tool call.
 
 ### Use
 

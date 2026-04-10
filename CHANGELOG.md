@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.1] - 2026-04-10
+
+### Changed
+- `agentSpawn` hook now inlines SKILL.md content directly into context (replaces instruction-to-read approach)
+- Eliminates dependency on agent executing `fs_read` to load skill definition
+
 ## [0.5.0] - 2026-04-10
 
 ### Changed
