@@ -8,10 +8,9 @@ SI="bash $SKILL_DIR/scripts/mem.sh"
 REVIEW_STATE="$SKILL_DIR/.data/review-state.json"
 
 cat << EOF
-<self-improving-active>
+<self-improving-context>
 SKILL_DIR=$SKILL_DIR
-Immediately fs_read $SKILL_DIR/SKILL.md and follow its instructions for the entire conversation.
-</self-improving-active>
+</self-improving-context>
 EOF
 
 # Memory: graduated entries not bound to any skill
