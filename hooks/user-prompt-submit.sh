@@ -1,6 +1,6 @@
 #!/bin/bash
 # Self-Improving — userPromptSubmit hook
-# Detects correction signals in user messages
+# Injects proactive-agent + capture-check directives
 set -euo pipefail
 
 SKILL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
