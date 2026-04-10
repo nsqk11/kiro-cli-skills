@@ -3,7 +3,6 @@
   "model": "claude-sonnet",
 
   "resources": [
-    "file://<SKILL_PATH>/SKILL.md",
     "file://<SKILL_PATH>/.data/mem.json"
   ],
 

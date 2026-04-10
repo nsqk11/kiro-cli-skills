@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] - 2026-04-10
+
+### Changed
+- Hook-driven SKILL.md loading: `agentSpawn` hook injects `SKILL_DIR` and instructs agent to read SKILL.md (replaces static `file://` resource)
+- All script paths in SKILL.md and hooks use `$SKILL_DIR` absolute paths instead of relative `scripts/`
+- Remove `file://...SKILL.md` from agent config `resources`
+
 ## [0.4.0] - 2026-04-09
 
 ### Changed

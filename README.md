@@ -39,9 +39,6 @@ Copy [`examples/agent-config.json`](examples/agent-config.json) into your agent 
 
 ```jsonc
 {
-  "resources": [
-    "file://<SKILL_PATH>/SKILL.md"
-  ],
   "hooks": {
     "agentSpawn":        [{ "command": "<SKILL_PATH>/hooks/agent-spawn.sh" }],
     "userPromptSubmit":  [{ "command": "<SKILL_PATH>/hooks/user-prompt-submit.sh" }],
@@ -50,6 +47,8 @@ Copy [`examples/agent-config.json`](examples/agent-config.json) into your agent 
   }
 }
 ```
+
+> SKILL.md is not added to `resources`. The `agentSpawn` hook injects `SKILL_DIR` and instructs the agent to read SKILL.md at session start.
 
 ### Use
 
