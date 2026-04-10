@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 - Add missing `userPromptSubmit` hook to `examples/agent-config.json`
+- Fix test assertion count in README (18 → 20)
 
 ## [0.5.1] - 2026-04-10
 

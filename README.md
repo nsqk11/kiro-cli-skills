@@ -114,7 +114,7 @@ self-improving/
 │   ├── skill-router.sh      # Auto-discovers skills via frontmatter
 │   ├── extract-skill.sh     # Scaffolds new skills
 │   └── tests/
-│       └── mem-test.sh       # mem.sh test suite (18 assertions)
+│       └── mem-test.sh       # mem.sh test suite (20 assertions)
 ├── examples/
 │   └── agent-config.json    # Agent config template
 └── .data/                   # Runtime data (git-ignored)
