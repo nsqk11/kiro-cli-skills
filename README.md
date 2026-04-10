@@ -83,7 +83,7 @@ bash scripts/mem.sh memory   # graduated + skill:none → context loading
 | Module | What it does | When |
 |--------|-------------|------|
 | **Capture** | Detects events (errors, corrections, discoveries) and adds to `mem.json` | During session, via `postToolUse` and `userPromptSubmit` hooks |
-| **Learn** | Reviews pending entries, resolves and graduates mature ones | Session start, via `agentSpawn` hook |
+| **Learn** | Reviews pending entries, resolves and graduates mature ones | Session start, tiered: ≤5 silent, 6-15 suggest, >15 mandatory |
 | **Improve** | Routes graduated knowledge back into skill files | When a topic accumulates ≥ 3 hits |
 
 ### Entry Lifecycle

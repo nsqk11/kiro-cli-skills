@@ -47,14 +47,14 @@ bash $SKILL_DIR/scripts/mem.sh memory   # graduated + skill:none → context loa
 
 - **do**:
   - Command/tool fails, user corrects, knowledge outdated, better approach, convention/decision → Capture
-  - New session with pending entries → Learn
+  - New session with pending entries → Learn (tiered by count: ≤5 silent, 6-15 suggest, >15 mandatory)
   - Same topic ≥ 3 hits → Improve
 - **don't**: mem.sh auto-deduplicates by keyword. If duplicate detected, review existing entry instead.
 
 ## Where
 
-- **do**: `.data/mem.json` (single data store) | `$SKILL_DIR/scripts/mem.sh` (CLI)
-- **don't**: Does not touch other skills' resource paths.
+- **do**: `.data/mem.json` (single data store) | `$SKILL_DIR/scripts/mem.sh` (CLI) | `data-template/` (template dir, not hidden)
+- **don't**: Does not touch other skills' resource paths. Note: self-improving dir itself is a git repo — use sufficient maxdepth when searching for `.git`.
 
 ## How
 
@@ -65,6 +65,8 @@ Capture → Learn → Improve
 ```
 
 Strictly sequential. Hook-driven: agentSpawn, postToolUse, userPromptSubmit, stop.
+
+Proactive means independently thinking, exploring, and solving — not blind obedience.
 
 ### Capture
 
@@ -112,8 +114,8 @@ User correction always wins — overwrite without asking.
 
 #### Graduation Criteria
 
-- Same topic appears ≥ 2 times (not one-off)
-- Entry age ≥ 3 days (settled, not hot)
+- `correction` type (user explicit fix) → graduate immediately, no count/age gate
+- All other types: same topic ≥ 2 times AND age ≥ 3 days
 - Or: user explicitly confirms it's a rule/convention
 
 ### Improve
@@ -122,6 +124,7 @@ User correction always wins — overwrite without asking.
 1. `$SKILL_DIR/scripts/skill-router.sh` injects `<skill-router>` routing table at agentSpawn
 2. User request matches triggers → `fs_read` the skill immediately
 3. Multiple skills may load; uncertain → wait for clearer signal
+4. Context lists a SKILL.md → read it proactively at conversation start, don't wait for user to trigger
 
 #### Graduated → Skill Feedback
 1. `bash $SKILL_DIR/scripts/mem.sh list --status graduated --skill none` — unattributed entries
@@ -134,6 +137,7 @@ User correction always wins — overwrite without asking.
 |------|--------|
 | Minor (tip, wording, example) | Auto-apply, notify |
 | Major (create/delete skill, triggers, restructure) | Propose first, wait for confirmation |
+| Script/JSON change | Auto-apply, then update corresponding SKILL.md to document the change |
 
 #### Skill Discovery
 - Same task 3+ times or user requests → Skill Candidate
@@ -152,5 +156,5 @@ At session end (stop hook), if significant work was done:
 
 ## How much
 
-- **do**: One entry per event. Learn consumes all pending — no leftovers. Improve: ≥ 3 hits triggers skill mod; user corrects same behavior 2+ times → update skill. agentSpawn loads memory + pending.
+- **do**: One entry per event. Learn tiered: ≤5 silent, 6-15 suggest, >15 mandatory — no leftovers. Graduation: correction → immediate; others → ≥2 hits + ≥3 days. Improve: ≥ 3 hits triggers skill mod. agentSpawn loads memory + pending.
 - **don't**: No duplicates (mem.sh enforces). Don't modify skills below threshold. Don't execute major changes without confirmation.

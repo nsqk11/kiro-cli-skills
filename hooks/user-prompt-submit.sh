@@ -10,6 +10,13 @@ EVENT=$(cat)
 PROMPT=$(jq -r '.prompt // empty' <<< "$EVENT" 2>/dev/null)
 [ -z "$PROMPT" ] && exit 0
 
+cat << 'EOF'
+
+<proactive-agent>
+Verify before asking. Finish then suggest next step. Flag risks immediately.
+</proactive-agent>
+EOF
+
 if echo "$PROMPT" | grep -qiE '不对|不是|错了|不应该|不准确|你搞错|wrong|incorrect|not right|that.s not'; then
   printf "<correction-detected>\nUser may be correcting you. If this is a correction, log it immediately:\n  bash $SKILL_DIR/scripts/mem.sh add -t correction -k \"keyword\" -s \"summary\"\nThen write a correction entry before continuing work.\n</correction-detected>\n"
 fi

@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0] - 2026-04-10
+
+### Changed
+- **Graduation Criteria**: `correction` type entries graduate immediately (no count/age gate); other types require ≥2 hits + ≥3 days
+- **Learn tiered trigger**: ≤5 pending → silent processing, 6-15 → suggest, >15 → mandatory before other work
+- **userPromptSubmit hook**: inject lightweight `<proactive-agent>` reminder on every user message
+- **agentSpawn hook**: inject full `<proactive-agent>` behavioral directive at session start
+- **Skill Routing**: context-listed SKILL.md files are read proactively at conversation start
+- **Change Control**: added Script/JSON change rule — auto-apply then update SKILL.md
+- **Where**: document `data-template/` dir and git repo caveat (maxdepth)
+- **How**: clarify proactive means independent thinking, not blind obedience
+
 ## [0.5.2] - 2026-04-10
 
 ### Fixed
