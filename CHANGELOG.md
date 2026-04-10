@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.1] - 2026-04-10
+
+### Changed
+- **userPromptSubmit hook**: expand signal detection from correction-only to 4 categories (correction, doubt, improvement, overkill)
+- Remove false-positive-prone "不是" pattern, add precise correction keywords (不对重来, 你说错, 搞错了, 你确定, 确定吗)
+- Add doubt signals (我记得不是这样, are you sure) → `<possible-correction>`
+- Add improvement signals (有没有其他, better way) → `<improvement-signal>`
+- Add overkill signals (有必要吗, 太复杂) → `<simplification-signal>`
+
 ## [0.6.0] - 2026-04-10
 
 ### Changed

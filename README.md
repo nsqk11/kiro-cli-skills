@@ -109,7 +109,7 @@ self-improving/
 │   └── mece.md              # Exhaustiveness checks
 ├── hooks/                   # Kiro agent lifecycle hooks
 │   ├── agent-spawn.sh       # Loads memory + pending, skill router, periodic review
-│   ├── user-prompt-submit.sh # Detects correction signals
+│   ├── user-prompt-submit.sh # Detects correction, doubt, improvement, overkill signals
 │   ├── post-tool-use.sh     # Auto-logs tool errors
 │   └── stop.sh              # Session review prompt
 ├── scripts/                 # Utilities
