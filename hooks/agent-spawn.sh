@@ -7,12 +7,10 @@ SKILL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 SI="bash $SKILL_DIR/scripts/mem.sh"
 REVIEW_STATE="$SKILL_DIR/.data/review-state.json"
 
-cat << 'EOF'
+cat << EOF
 <self-improving-active>
-self-improving active. Use `mem.sh` to capture events:
-  bash scripts/mem.sh add -t TYPE -k "keywords" -s "summary" [-d "detail"]
-Types: error, correction, knowledge-gap, improvement, feature-request, convention, decision, workflow, user-pattern, environment, gotcha, deprecation
-Before adding, mem.sh auto-deduplicates by keyword.
+SKILL_DIR=$SKILL_DIR
+Immediately fs_read $SKILL_DIR/SKILL.md and follow its instructions for the entire conversation.
 </self-improving-active>
 EOF
 

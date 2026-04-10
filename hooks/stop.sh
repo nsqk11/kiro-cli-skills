@@ -14,10 +14,10 @@ cat << EOF
 <session-review>
 Session ending. Quick review:
 1. Any uncaptured events this session? (error/correction/gotcha/convention)
-   → bash scripts/mem.sh add -t TYPE -k "kw" -s "summary"
+   → bash $SKILL_DIR/scripts/mem.sh add -t TYPE -k "kw" -s "summary"
 2. Open entries: $OPEN_COUNT
 3. Any entry ready to graduate?
-   → bash scripts/mem.sh graduate -i ID -S "section"
+   → bash $SKILL_DIR/scripts/mem.sh graduate -i ID -S "section"
 Skip silently if conversation was trivial.
 </session-review>
 EOF

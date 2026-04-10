@@ -17,15 +17,15 @@ Reference: [5W2H](prompts/5w2h.md) | [MECE](prompts/mece.md)
 
 ## Data Store
 
-Single file `.data/mem.json` managed by `scripts/mem.sh`. Entry lifecycle: `open → done → graduated`.
+Single file `.data/mem.json` managed by `$SKILL_DIR/scripts/mem.sh`. Entry lifecycle: `open → done → graduated`.
 
 ```
-bash scripts/mem.sh add      -t TYPE -k "kw,..." -s "summary" [-d "detail"]
-bash scripts/mem.sh resolve  -i ID [-r "resolution"]
-bash scripts/mem.sh graduate -i ID -S "section" [-k "skill-name"]
-bash scripts/mem.sh list     [--status S] [--skill S] [--type T]
-bash scripts/mem.sh search   -k "keyword"
-bash scripts/mem.sh memory   # graduated + skill:none → context loading
+bash $SKILL_DIR/scripts/mem.sh add      -t TYPE -k "kw,..." -s "summary" [-d "detail"]
+bash $SKILL_DIR/scripts/mem.sh resolve  -i ID [-r "resolution"]
+bash $SKILL_DIR/scripts/mem.sh graduate -i ID -S "section" [-k "skill-name"]
+bash $SKILL_DIR/scripts/mem.sh list     [--status S] [--skill S] [--type T]
+bash $SKILL_DIR/scripts/mem.sh search   -k "keyword"
+bash $SKILL_DIR/scripts/mem.sh memory   # graduated + skill:none → context loading
 ```
 
 ## Why
@@ -53,7 +53,7 @@ bash scripts/mem.sh memory   # graduated + skill:none → context loading
 
 ## Where
 
-- **do**: `.data/mem.json` (single data store) | `scripts/mem.sh` (CLI)
+- **do**: `.data/mem.json` (single data store) | `$SKILL_DIR/scripts/mem.sh` (CLI)
 - **don't**: Does not touch other skills' resource paths.
 
 ## How
@@ -68,7 +68,7 @@ Strictly sequential. Hook-driven: agentSpawn, postToolUse, userPromptSubmit, sto
 
 ### Capture
 
-1. Detect event → `bash scripts/mem.sh add -t TYPE -k "keywords" -s "summary"`
+1. Detect event → `bash $SKILL_DIR/scripts/mem.sh add -t TYPE -k "keywords" -s "summary"`
 2. mem.sh handles dedup automatically (exit 2 = duplicate found)
 3. Do not chain commands — separate read and write calls
 
@@ -103,10 +103,10 @@ If you realize mid-conversation a correction/request wasn't captured — log the
 
 ### Learn
 
-1. `bash scripts/mem.sh list --status open` — review pending entries
-2. Resolve entries: `bash scripts/mem.sh resolve -i ID -r "resolution"`
-3. Graduate mature entries: `bash scripts/mem.sh graduate -i ID -S "section"` (skill:none by default)
-4. If entry belongs to a skill: `bash scripts/mem.sh graduate -i ID -S "section" -k "skill-name"`
+1. `bash $SKILL_DIR/scripts/mem.sh list --status open` — review pending entries
+2. Resolve entries: `bash $SKILL_DIR/scripts/mem.sh resolve -i ID -r "resolution"`
+3. Graduate mature entries: `bash $SKILL_DIR/scripts/mem.sh graduate -i ID -S "section"` (skill:none by default)
+4. If entry belongs to a skill: `bash $SKILL_DIR/scripts/mem.sh graduate -i ID -S "section" -k "skill-name"`
 
 User correction always wins — overwrite without asking.
 
@@ -119,14 +119,14 @@ User correction always wins — overwrite without asking.
 ### Improve
 
 #### Skill Routing
-1. `scripts/skill-router.sh` injects `<skill-router>` routing table at agentSpawn
+1. `$SKILL_DIR/scripts/skill-router.sh` injects `<skill-router>` routing table at agentSpawn
 2. User request matches triggers → `fs_read` the skill immediately
 3. Multiple skills may load; uncertain → wait for clearer signal
 
 #### Graduated → Skill Feedback
-1. `bash scripts/mem.sh list --status graduated --skill none` — unattributed entries
+1. `bash $SKILL_DIR/scripts/mem.sh list --status graduated --skill none` — unattributed entries
 2. Merge into corresponding skill's SKILL.md
-3. Re-graduate with skill: `bash scripts/mem.sh graduate -i ID -S "section" -k "skill-name"`
+3. Re-graduate with skill: `bash $SKILL_DIR/scripts/mem.sh graduate -i ID -S "section" -k "skill-name"`
 
 #### Change Control
 
