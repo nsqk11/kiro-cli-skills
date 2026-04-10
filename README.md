@@ -39,6 +39,9 @@ Copy [`examples/agent-config.json`](examples/agent-config.json) into your agent 
 
 ```jsonc
 {
+  "resources": [
+    "file://<SKILL_PATH>/SKILL.md"
+  ],
   "hooks": {
     "agentSpawn":        [{ "command": "<SKILL_PATH>/hooks/agent-spawn.sh" }],
     "userPromptSubmit":  [{ "command": "<SKILL_PATH>/hooks/user-prompt-submit.sh" }],
@@ -48,7 +51,7 @@ Copy [`examples/agent-config.json`](examples/agent-config.json) into your agent 
 }
 ```
 
-> SKILL.md is not added to `resources`. The `agentSpawn` hook inlines SKILL.md content directly into the context, ensuring 100% reliable loading without requiring the agent to make a tool call.
+> `SKILL.md` must be in `resources` so the agent loads the full skill definition. The `agentSpawn` hook injects runtime context (memory, pending logs, skill router, review reminders) — not the skill definition itself.
 
 ### Use
 

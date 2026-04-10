@@ -2,7 +2,9 @@
   "name": "your-agent",
   "model": "claude-sonnet",
 
-  "resources": [],
+  "resources": [
+    "file://<SKILL_PATH>/SKILL.md"
+  ],
 
   "hooks": {
     "agentSpawn": [
