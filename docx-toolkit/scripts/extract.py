@@ -176,19 +176,17 @@ def extract(docx_path):
                     current_content.append(img)
                 elif is_list_paragraph(para):
                     runs = extract_runs(para)
-                    if runs:
-                        item = {"runs": runs}
-                        if para.style and para.style.name:
-                            item["style"] = para.style.name
-                        pending_list_items.append(item)
+                    item = {"runs": runs}
+                    if para.style and para.style.name:
+                        item["style"] = para.style.name
+                    pending_list_items.append(item)
                 else:
                     flush_list()
                     runs = extract_runs(para)
-                    if runs:
-                        block = {"type": "paragraph", "runs": runs}
-                        if para.style and para.style.name and para.style.name != "Normal":
-                            block["style"] = para.style.name
-                        current_content.append(block)
+                    block = {"type": "paragraph", "runs": runs}
+                    if para.style and para.style.name and para.style.name != "Normal":
+                        block["style"] = para.style.name
+                    current_content.append(block)
 
         elif tag == qn('w:tbl'):
             from docx.table import Table
