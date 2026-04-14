@@ -127,6 +127,12 @@ def add_content_blocks(doc, content, template_doc=None):
         btype = block.get("type")
         if btype == "paragraph":
             p = doc.add_paragraph()
+            style_name = block.get("style")
+            if style_name:
+                try:
+                    p.style = doc.styles[style_name]
+                except KeyError:
+                    pass
             add_runs(p, block.get("runs", []))
         elif btype == "table":
             rows = block.get("rows", [])
@@ -145,6 +151,12 @@ def add_content_blocks(doc, content, template_doc=None):
         elif btype == "list":
             for item in block.get("items", []):
                 p = doc.add_paragraph()
+                style_name = item.get("style")
+                if style_name:
+                    try:
+                        p.style = doc.styles[style_name]
+                    except KeyError:
+                        pass
                 add_runs(p, item.get("runs", []))
                 # Inject numPr directly — style-based lists don't always generate it
                 ppr = p._element.find(qn('w:pPr'))
