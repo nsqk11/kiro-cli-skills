@@ -9,8 +9,7 @@ SKIP="self-improving"
 printf '<skill-router>\n'
 printf 'Auto-loaded routing table. When user message matches triggers, fs_read the SKILL.md path.\n\n'
 
-for file in "$SKILLS_ROOT"/*/SKILL.md "$SKILLS_ROOT"/*/*/SKILL.md "$SKILLS_ROOT"/*/*/*/SKILL.md; do
-  [ -f "$file" ] || continue
+while IFS= read -r file; do
   awk -v file="$file" -v skip="$SKIP" '
     BEGIN { in_fm=0; name=""; desc=""; triggers="" }
     NR==1 && /^---$/ { in_fm=1; next }
@@ -23,6 +22,6 @@ for file in "$SKILLS_ROOT"/*/SKILL.md "$SKILLS_ROOT"/*/*/SKILL.md "$SKILLS_ROOT"
         printf "- **%s**: %s\n  triggers: [%s]\n  path: %s\n", name, desc, triggers, file
     }
   ' "$file"
-done
+done < <(find -L "$SKILLS_ROOT" -name "SKILL.md" -not -path "*/.git/*" -not -path "*/template*" -not -path "*/self-improving/*" | sort)
 
 printf '</skill-router>\n'
