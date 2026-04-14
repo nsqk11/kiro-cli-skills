@@ -2,15 +2,14 @@
 
 JSON-based docx editing toolkit for Kiro CLI.
 
-Extracts `.docx` structure into a flat JSON node map (UUID-keyed sections with heading/content/children), lets LLM read and edit via change instructions, then applies changes back to docx. Roundtrip-verified on real documents.
+Extracts `.docx` body content into a flat JSON node map keyed by body index, LLM reads and writes change instructions, then patch applies changes by in-place modifying the original docx XML. Everything except the patched elements is preserved untouched.
 
 ## Scripts
 
 | Script | Purpose |
 |--------|---------|
-| `extract.py` | docx → JSON (structure extraction with stable UUIDs) |
-| `tree.py` | JSON tree operations: `show`, `get`, `apply` change instructions |
-| `apply.py` | JSON → docx (full rebuild using original docx as style template) |
+| `extract.py` | docx → flat JSON (reading view + body-index locator) |
+| `patch.py` | instructions → docx (in-place XML surgery, no rebuild) |
 
 ## Quick Start
 
@@ -18,26 +17,31 @@ Extracts `.docx` structure into a flat JSON node map (UUID-keyed sections with h
 # Extract docx → JSON
 python3 scripts/extract.py input.docx -o doc.json
 
-# View tree structure
-python3 scripts/tree.py show doc.json
-
-# Get a specific node
-python3 scripts/tree.py get doc.json nd-a1b2c3d4
-
-# Apply change instructions
-python3 scripts/tree.py apply doc.json '[{"op":"rename","id":"nd-a1b2c3d4","heading":"New Title"}]'
-
-# Rebuild docx from JSON
-python3 scripts/apply.py input.docx doc.json -o output.docx
+# Apply patch instructions
+python3 scripts/patch.py input.docx instructions.json [-o output.docx]
 ```
 
 Run `python3 <script> --help` for full usage.
 
-## Supported Content
+## Patch Operations
 
-- Headings (any level), paragraphs, tables, bullet/number lists, images
-- Inline formatting: bold, italic, hyperlinks
-- 5 change operations: `update`, `rename`, `delete`, `add`, `move`
+| Op | What it does |
+|----|-------------|
+| `update_text` | Change text of one run by index |
+| `update_runs` | Replace all runs in paragraph |
+| `update_cell` | Change one table cell |
+| `rename_heading` | Change heading text |
+| `delete` | Remove body element |
+| `add_after` | Insert paragraph after target |
+| `add_table_after` | Insert table after target |
+| `move` | Relocate element to after target |
+
+## Key Gotchas
+
+- Use `delete` (not `update_runs` with empty text) to remove template placeholders — empty runs leave blank lines
+- `update_runs` strips rPr from original runs — include formatting in new runs or fix rPr after patching
+- Multiple `add_after` on same idx → reverse order — use Python `addnext()` for bulk forward-order insertions
+- `clone_style_from` does not set heading level — use direct Python insertion for new headings
 
 ## Requirements
 
