@@ -10,7 +10,6 @@ REVIEW_STATE="$SKILL_DIR/.data/review-state.json"
 cat << EOF
 <self-improving-context>
 SKILL_DIR=$SKILL_DIR
-Load the self-improving skill immediately — it must be fully loaded from the first message, not lazy-loaded on demand.
 </self-improving-context>
 
 <proactive-agent>

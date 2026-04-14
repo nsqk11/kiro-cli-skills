@@ -113,9 +113,9 @@ User correction always wins — overwrite without asking.
 ### Improve
 
 #### Skill Routing
-1. Skills are loaded via Kiro native `skill://` resources in agent config (lazy-loading by description match)
-2. User request matches skill description → Kiro loads the full SKILL.md on demand
-3. self-improving must be fully loaded from session start — agentSpawn hook instructs this
+1. Most skills are loaded via `skill://` resources (lazy-loading by description match)
+2. self-improving uses `file://` resource in agent config → preloaded at session start, no lazy-load
+3. agentSpawn hook injects memory + pending-logs into context; `file://` provides the full SKILL.md
 
 #### Graduated → Skill Feedback
 1. `bash $SKILL_DIR/scripts/mem.sh list --status graduated --skill none` — unattributed entries
