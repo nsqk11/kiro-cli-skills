@@ -38,11 +38,21 @@ def add_runs(paragraph, runs):
         if "hyperlink" in r:
             make_hyperlink(paragraph, text, r["hyperlink"])
         else:
-            run = paragraph.add_run(text)
+            # Split on \n and \t to restore w:br and w:tab
+            import re
+            parts = re.split(r'(\n|\t)', text)
+            run = paragraph.add_run()
             if r.get("bold"):
                 run.bold = True
             if r.get("italic"):
                 run.italic = True
+            for part in parts:
+                if part == '\n':
+                    run.add_break()
+                elif part == '\t':
+                    run._element.append(OxmlElement('w:tab'))
+                elif part:
+                    run.add_text(part)
 
 
 _list_numid_cache = {}

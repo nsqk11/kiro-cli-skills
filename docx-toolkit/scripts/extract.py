@@ -13,16 +13,29 @@ def gen_id():
     return "nd-" + uuid.uuid4().hex[:8]
 
 
+def _run_text(run_el):
+    """Extract text from a w:r element, including br and tab."""
+    parts = []
+    for el in run_el:
+        if el.tag == qn('w:t') and el.text:
+            parts.append(el.text)
+        elif el.tag == qn('w:br'):
+            parts.append('\n')
+        elif el.tag == qn('w:tab'):
+            parts.append('\t')
+    return ''.join(parts)
+
+
 def extract_runs(paragraph):
     """Extract runs from a paragraph, preserving inline formatting and hyperlinks."""
     runs = []
     for child in paragraph._element:
         if child.tag == qn('w:r'):
             rpr = child.find(qn('w:rPr'))
-            text_el = child.find(qn('w:t'))
-            if text_el is None or not text_el.text:
+            text = _run_text(child)
+            if not text:
                 continue
-            run = {"text": text_el.text}
+            run = {"text": text}
             if rpr is not None:
                 if rpr.find(qn('w:b')) is not None:
                     run["bold"] = True
@@ -56,7 +69,9 @@ def extract_table(table):
         cells = []
         for cell in row.cells:
             cell_runs = []
-            for p in cell.paragraphs:
+            for i, p in enumerate(cell.paragraphs):
+                if i > 0 and cell_runs:
+                    cell_runs.append({"text": "\n"})
                 cell_runs.extend(extract_runs(p))
             cells.append({"runs": cell_runs})
         rows.append(cells)
