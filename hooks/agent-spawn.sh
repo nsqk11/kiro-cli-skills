@@ -10,6 +10,7 @@ REVIEW_STATE="$SKILL_DIR/.data/review-state.json"
 cat << EOF
 <self-improving-context>
 SKILL_DIR=$SKILL_DIR
+Load the self-improving skill immediately — it must be fully loaded from the first message, not lazy-loaded on demand.
 </self-improving-context>
 
 <proactive-agent>
@@ -30,8 +31,8 @@ if [ -n "$PENDING" ]; then
   printf '\n<pending-logs count="%d">\n%s\n</pending-logs>\n' "$TOTAL" "$PENDING"
 fi
 
-# Skill routing table
-bash "$SKILL_DIR/scripts/skill-router.sh"
+# Skill routing now handled by skill:// resources in agent config
+# skill-router.sh no longer needed
 
 # Periodic review check
 mkdir -p "$SKILL_DIR/.data"

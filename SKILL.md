@@ -1,14 +1,6 @@
 ---
 name: self-improving
-description: "Three-module closed-loop system for continuous self-improvement"
-triggers:
-  - "command fails"
-  - "user corrects"
-  - "knowledge outdated"
-  - "missing capability"
-  - "better approach"
-  - "convention"
-  - "pending learnings"
+description: "Closed-loop system (Capture → Learn → Improve) for continuous self-improvement. Use when a command fails, user corrects a mistake, knowledge is outdated, a missing capability is discovered, a better approach is found, a convention or decision is established, or there are pending learnings to review. Also triggers at session start to load memory and process graduated entries."
 ---
 
 # Self-Improving
@@ -121,10 +113,9 @@ User correction always wins — overwrite without asking.
 ### Improve
 
 #### Skill Routing
-1. `$SKILL_DIR/scripts/skill-router.sh` injects `<skill-router>` routing table at agentSpawn
-2. User request matches triggers → `fs_read` the skill immediately
-3. Multiple skills may load; uncertain → wait for clearer signal
-4. Context lists a SKILL.md → read it proactively at conversation start, don't wait for user to trigger
+1. Skills are loaded via Kiro native `skill://` resources in agent config (lazy-loading by description match)
+2. User request matches skill description → Kiro loads the full SKILL.md on demand
+3. self-improving must be fully loaded from session start — agentSpawn hook instructs this
 
 #### Graduated → Skill Feedback
 1. `bash $SKILL_DIR/scripts/mem.sh list --status graduated --skill none` — unattributed entries
@@ -143,7 +134,7 @@ User correction always wins — overwrite without asking.
 - Same task 3+ times or user requests → Skill Candidate
 - Overlap > 50% with existing → improve existing instead
 - Standard: 5W2H structure, MECE, do/don't, instruction-style
-- Ensure frontmatter correct for `skill-router.sh`
+- Ensure frontmatter `name` + `description` are rich enough for `skill://` lazy-loading match
 
 #### Periodic Review
 Every 20 sessions or 7 days: recurring keywords 3+ → graduate candidate? Open entries stale 7+ days → resolve or drop?

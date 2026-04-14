@@ -3,7 +3,7 @@
   "model": "claude-sonnet",
 
   "resources": [
-    "file://<SKILL_PATH>/SKILL.md"
+    "skill://<SKILL_PATH>/SKILL.md"
   ],
 
   "hooks": {

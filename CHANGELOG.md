@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.0] - 2026-04-14
+
+### Changed
+- **SKILL.md**: Merge `triggers` into `description` field (Kiro `skill://` compatible format)
+- **agent-spawn.sh**: Add instruction for AI to fully load self-improving skill immediately
+- **agent-spawn.sh**: Remove `skill-router.sh` call — routing now handled by Kiro native `skill://` resources
+
+### Removed
+- `triggers` field from frontmatter — no longer needed with enriched `description`
+- Skill router injection at agentSpawn — replaced by `skill://` lazy-loading in agent config
+
 ## [0.7.0] - 2026-04-10
 
 ### Changed
