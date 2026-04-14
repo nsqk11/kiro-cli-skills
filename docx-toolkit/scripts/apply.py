@@ -45,7 +45,83 @@ def add_runs(paragraph, runs):
                 run.italic = True
 
 
-def add_content_blocks(doc, content):
+_list_numid_cache = {}
+
+def _get_list_numid(doc, style):
+    """Get or create a numId for bullet/number lists."""
+    if style in _list_numid_cache:
+        return _list_numid_cache[style]
+    fmt = 'bullet' if style == 'bullet' else 'decimal'
+    numbering_part = doc.part.numbering_part
+    num_xml = numbering_part._element
+    # Find an existing abstractNum with matching format
+    for absnum in num_xml.findall(qn('w:abstractNum')):
+        lvl0 = absnum.find(qn('w:lvl'))
+        if lvl0 is not None:
+            nf = lvl0.find(qn('w:numFmt'))
+            if nf is not None and nf.get(qn('w:val')) == fmt:
+                aid = absnum.get(qn('w:abstractNumId'))
+                # Find num referencing this abstractNum
+                for num in num_xml.findall(qn('w:num')):
+                    ref = num.find(qn('w:abstractNumId'))
+                    if ref is not None and ref.get(qn('w:val')) == aid:
+                        nid = int(num.get(qn('w:numId')))
+                        _list_numid_cache[style] = nid
+                        return nid
+    return 1  # fallback
+
+
+def _add_image_from_template(doc, template_doc, filename):
+    """Copy an image from template docx into the new doc."""
+    if template_doc is None:
+        p = doc.add_paragraph()
+        p.add_run("[Image: {}]".format(filename))
+        return
+    # Reuse existing relationship in doc if image already present
+    for rel_id, rel in doc.part.rels.items():
+        if 'image' in rel.reltype and os.path.basename(rel.target_ref) == filename:
+            p = doc.add_paragraph()
+            _insert_inline_image(p, rel_id, filename)
+            return
+    # Copy from template
+    for rel_id, rel in template_doc.part.rels.items():
+        if 'image' in rel.reltype and os.path.basename(rel.target_ref) == filename:
+            new_rid = doc.part.relate_to(rel.target_part, rel.reltype)
+            p = doc.add_paragraph()
+            _insert_inline_image(p, new_rid, filename)
+            return
+    p = doc.add_paragraph()
+    p.add_run("[Image: {}]".format(filename))
+
+
+def _insert_inline_image(paragraph, r_id, filename):
+    """Insert minimal inline image XML into paragraph."""
+    from docx.shared import Emu
+    cx, cy = Emu(5486400), Emu(3200400)  # ~5.76x3.36 inches default
+    inline_xml = (
+        '<wp:inline xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"'
+        ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"'
+        ' xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"'
+        ' xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">'
+        '<wp:extent cx="{cx}" cy="{cy}"/>'
+        '<wp:docPr id="1" name="{name}"/>'
+        '<a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">'
+        '<pic:pic><pic:nvPicPr><pic:cNvPr id="0" name="{name}"/><pic:cNvPicPr/></pic:nvPicPr>'
+        '<pic:blipFill><a:blip r:embed="{rid}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>'
+        '<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="{cx}" cy="{cy}"/></a:xfrm>'
+        '<a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr>'
+        '</pic:pic></a:graphicData></a:graphic></wp:inline>'
+    ).format(cx=cx, cy=cy, name=filename, rid=r_id)
+    from lxml import etree
+    inline_el = etree.fromstring(inline_xml)
+    drawing = OxmlElement('w:drawing')
+    drawing.append(inline_el)
+    run_el = OxmlElement('w:r')
+    run_el.append(drawing)
+    paragraph._element.append(run_el)
+
+
+def add_content_blocks(doc, content, template_doc=None):
     """Add content blocks (paragraphs, tables, lists, images) to document."""
     for block in content:
         btype = block.get("type")
@@ -67,19 +143,30 @@ def add_content_blocks(doc, content):
                         cell.paragraphs[0].clear()
                         add_runs(cell.paragraphs[0], cell_data.get("runs", []))
         elif btype == "list":
-            style_name = "List Bullet" if block.get("style") == "bullet" else "List Number"
             for item in block.get("items", []):
-                p = doc.add_paragraph(style=style_name)
+                p = doc.add_paragraph()
                 add_runs(p, item.get("runs", []))
+                # Inject numPr directly — style-based lists don't always generate it
+                ppr = p._element.find(qn('w:pPr'))
+                if ppr is None:
+                    ppr = OxmlElement('w:pPr')
+                    p._element.insert(0, ppr)
+                numpr = OxmlElement('w:numPr')
+                ilvl = OxmlElement('w:ilvl')
+                ilvl.set(qn('w:val'), '0')
+                numid = OxmlElement('w:numId')
+                numid.set(qn('w:val'), str(_get_list_numid(doc, block.get("style", "bullet"))))
+                numpr.append(ilvl)
+                numpr.append(numid)
+                ppr.append(numpr)
         elif btype == "image":
             filename = block.get("filename", "")
-            # Try to find image in same directory as source docx
-            p = doc.add_paragraph()
-            p.add_run("[Image: {}]".format(filename))
+            _add_image_from_template(doc, template_doc, filename)
 
 
 def build_doc(data, template_path):
     """Build a new docx from JSON tree using template for styles."""
+    template_doc = Document(template_path)
     doc = Document(template_path)
 
     # Clear existing body content
@@ -98,14 +185,11 @@ def build_doc(data, template_path):
         content = node.get("content", [])
         children = node.get("children", [])
 
-        # Add heading (skip level 0 preamble heading)
         if level > 0 and heading:
             doc.add_heading(heading, level=level)
 
-        # Add content blocks
-        add_content_blocks(doc, content)
+        add_content_blocks(doc, content, template_doc)
 
-        # Recurse into children
         for cid in children:
             render_node(cid)
 
