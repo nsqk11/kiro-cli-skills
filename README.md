@@ -12,7 +12,7 @@ A collection of custom skills for Kiro CLI.
 ## Installation
 
 ```bash
-git clone <repo-url> ~/.kiro/skills/common/kiro-skills
+git clone <repo-url> ~/.kiro/skills/kiro-cli-skills
 ```
 
 ## Structure
