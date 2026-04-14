@@ -1,13 +1,13 @@
 ---
 name: docx-toolkit
-description: "JSON-based docx editing toolkit. Extracts docx structure into a flat node map (UUID-keyed sections with heading/content/children), LLM reads and edits via change instructions, then applies changes back to docx. Use when reading, editing, or creating .docx files. Trigger on mentions of '.docx', 'Word document', 'OA report', 'NDS', or any document editing task. Replaces direct XML manipulation."
+description: "JSON-based docx editing toolkit. Extracts docx structure into a flat node map (UUID-keyed sections with heading/content/children), LLM reads and edits via change instructions, then applies changes back to docx. Use when reading, editing, or creating .docx files. Trigger on mentions of '.docx', 'Word document', 'report', 'specification', or any document editing task. Replaces direct XML manipulation."
 ---
 
 # docx-toolkit
 
 ## Why
 
-- **do**: LLM cannot efficiently operate on docx XML — it's too verbose and consumes context rapidly. A JSON intermediate layer provides a compact, structured representation that LLM can read and edit via change instructions. Roundtrip fidelity verified on real NDS documents (82 nodes, 28 tables, 9 lists, 2 images, 86 hyperlinks — all preserved).
+- **do**: LLM cannot efficiently operate on docx XML — it's too verbose and consumes context rapidly. A JSON intermediate layer provides a compact, structured representation that LLM can read and edit via change instructions. Roundtrip fidelity verified on real documents (82 nodes, 28 tables, 9 lists, 2 images, 86 hyperlinks — all preserved).
 - **don't**: Not for PDF, PPTX, XLSX, or Confluence pages. Not for documents where XML fidelity matters more than content (e.g., complex form fields, tracked changes).
 
 ## What
@@ -26,7 +26,7 @@ description: "JSON-based docx editing toolkit. Extracts docx structure into a fl
 
 ## When
 
-- **do**: Any task involving reading or editing .docx files. Trigger on mentions of `.docx`, `Word document`, `OA report`, `NDS`, or any document editing task.
+- **do**: Any task involving reading or editing .docx files. Trigger on mentions of `.docx`, `Word document`, `report`, `specification`, or any document editing task.
 - **don't**: Not when the task only needs text extraction without structure (use `python-docx` directly). Not when the primary deliverable is a non-docx format.
 
 ## Where
@@ -151,7 +151,7 @@ Example:
   - Extract: Heading 1-9, paragraphs, tables, bullet/number lists, images, hyperlinks, bold, italic.
   - Tree: all 5 change operations (update, rename, delete, add, move).
   - Apply: full document rebuild from JSON using template for styles/numbering/media.
-  - Verified on 920 NDS: 82 nodes, 302 paragraphs, 28 tables, 9 lists, 2 images — perfect roundtrip.
+  - Verified on real 160-page specification: 82 nodes, 302 paragraphs, 28 tables, 9 lists, 2 images — perfect roundtrip.
 - **don't**:
   - No nested lists (flat only).
   - No merged table cells.

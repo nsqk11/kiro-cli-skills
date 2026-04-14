@@ -2,7 +2,7 @@
 
 JSON-based docx editing toolkit for Kiro CLI.
 
-Extracts `.docx` structure into a flat JSON node map (UUID-keyed sections with heading/content/children), lets LLM read and edit via change instructions, then applies changes back to docx. Roundtrip-verified on real NDS documents.
+Extracts `.docx` structure into a flat JSON node map (UUID-keyed sections with heading/content/children), lets LLM read and edit via change instructions, then applies changes back to docx. Roundtrip-verified on real documents.
 
 ## Scripts
 
