@@ -24,14 +24,16 @@ if [ -n "$MISSING" ]; then
   exit 1
 fi
 
-# Check Python libraries
+# Check Python libraries, install if missing
 PY_MISSING=""
-for mod in docx; do
-  python3.12 -c "import $mod" 2>/dev/null || PY_MISSING="$PY_MISSING python-docx"
+for mod_pkg in "docx:python-docx"; do
+  mod="${mod_pkg%%:*}"
+  pkg="${mod_pkg##*:}"
+  python3.12 -c "import $mod" 2>/dev/null || PY_MISSING="$PY_MISSING $pkg"
 done
 if [ -n "$PY_MISSING" ]; then
-  printf "${YELLOW}Missing Python packages:%s${NC}\n" "$PY_MISSING"
-  printf "Install with: python3.12 -m pip install%s\n\n" "$PY_MISSING"
+  printf "Installing Python packages:%s\n" "$PY_MISSING"
+  python3.12 -m pip install --quiet $PY_MISSING
 fi
 
 mkdir -p "$TARGET"
