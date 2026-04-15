@@ -1,2 +1,3 @@
 # Personal data (not tracked in git)
 .data/
+__pycache__/
