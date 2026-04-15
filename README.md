@@ -15,10 +15,6 @@ A collection of custom skills for Kiro CLI.
 git clone <repo-url> ~/.kiro/skills/kiro-cli-skills
 ```
 
-## Recent Changes
-
-- **self-improving**: Added `mem.sh clean` command (remove graduated-in-skill + stale done entries); added "Design/implementation" change control rule; removed `skill-router.sh` (no longer needed)
-
 ## Structure
 
 ```
