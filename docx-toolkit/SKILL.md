@@ -5,6 +5,8 @@ description: "Two independent capabilities for .docx files: (1) Scrape — extra
 
 # docx-toolkit
 
+Reference: [5W2H](../prompts/5w2h.md) | [MECE](../prompts/mece.md)
+
 ## Why
 
 - **do**: LLM cannot operate on docx XML directly. This toolkit provides two independent capabilities: scraping docx content into JSON for reading, and using the scraped data to make precise modifications.
