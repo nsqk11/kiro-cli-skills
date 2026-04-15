@@ -1,20 +1,20 @@
 ---
 name: docx-toolkit
-description: "JSON-based docx editing toolkit. Extracts docx body content into a flat node map keyed by body index, LLM reads and writes change instructions, then patch applies changes by in-place modifying the original docx XML. Everything except the patched elements is preserved untouched. Use when reading, editing, or creating .docx files."
+description: "Two independent capabilities for .docx files: (1) Scrape — extract body content into flat JSON for reading/analysis; (2) Modify — use scraped indices to surgically patch the original docx XML in-place. Use when reading or editing .docx files."
 ---
 
 # docx-toolkit
 
 ## Why
 
-- **do**: LLM cannot operate on docx XML directly. JSON provides a compact reading view. Patch writes changes back by surgically modifying the original XML — everything not explicitly changed is preserved bit-for-bit.
+- **do**: LLM cannot operate on docx XML directly. This toolkit provides two independent capabilities: scraping docx content into JSON for reading, and using the scraped data to make precise modifications.
 - **don't**: Not for PDF, PPTX, XLSX, or Confluence pages.
 
 ## What
 
-- **do**: Two scripts:
-  - `extract.py` — docx → flat JSON (reading view + body-index locator)
-  - `patch.py` — instructions → docx (in-place XML surgery, no rebuild)
+- **do**: Two independent capabilities, each backed by a script:
+  1. **Scrape** (`scrape.py`) — docx → flat JSON. Use standalone for reading, analysis, comparison, or as input for modification.
+  2. **Modify** (`patch.py`) — JSON instructions → docx. Uses body indices from scraping to surgically modify the original XML in-place. Everything not targeted is preserved bit-for-bit.
 - **don't**: Does not rebuild the document. Does not touch anything not explicitly targeted by instructions.
 
 ## Who
@@ -26,25 +26,30 @@ description: "JSON-based docx editing toolkit. Extracts docx body content into a
 
 | Path | Content |
 |------|---------|
-| `$SKILL_DIR/scripts/extract.py` | docx → JSON |
+| `$SKILL_DIR/scripts/scrape.py` | docx → JSON |
 | `$SKILL_DIR/scripts/patch.py` | instructions → docx (in-place) |
 
 Run `python3 <script> --help` for CLI usage.
 
 ## How
 
-### Workflow
+### Scrape (read-only)
 
 ```
-extract.py              LLM                    patch.py
-docx ──→ JSON(read-only) ──→ change instructions ──→ docx(in-place modify)
+python3 scrape.py input.docx -o output.json
 ```
 
-1. Extract: `python3 extract.py input.docx -o output.json`
-2. Read: LLM reads JSON — flat map keyed by body index, sections index for navigation
-3. Write instructions: LLM produces JSON array of ops
-4. Patch: `python3 patch.py input.docx instructions.json [-o output.docx]`
-5. Re-extract after patch if further edits needed
+Use the JSON for reading, analysis, comparison — no modification needed.
+
+### Modify (scrape → patch)
+
+```
+python3 scrape.py input.docx -o doc.json     # 1. scrape for indices
+# LLM reads JSON, writes change instructions  # 2. plan changes
+python3 patch.py input.docx instructions.json  # 3. apply in-place
+```
+
+Re-extract after patch if further edits needed.
 
 ### JSON Structure
 
@@ -71,12 +76,13 @@ Key: node keys are body element indices (strings). Use these indices in patch in
 |-------|-------------|
 | `tag` | `p` (paragraph), `tbl` (table), `sdt` (structured doc tag) |
 | `text` | Plain text summary (runs concatenated) |
-| `runs` | Array of `{"text", "bold?", "italic?", "hidden?", "hyperlink?"}` |
+| `runs` | Array of `{"text", "bold?", "italic?", "hidden?", "hyperlink?"}` — images appear as `{"image": true, "rId", "target", "alt?", "width_emu?", "height_emu?"}` |
 | `style` | Paragraph/table style name |
 | `level` | Heading level (1-9), only on headings |
 | `section` | Full section path, only on headings |
 | `cells` | Table cells with `row`, `col`, `text`, `runs`, `shading?` |
 | `list` | `true` if list paragraph |
+| `comments` | Array of `{"id", "author", "date", "text"}` — inline comments attached to this node |
 
 ### Patch Instructions
 
@@ -86,10 +92,14 @@ Key: node keys are body element indices (strings). Use these indices in patch in
   {"op": "update_runs",     "idx": 37, "runs": [{"text": "New", "bold": true}]},
   {"op": "update_cell",     "idx": 35, "row": 0, "col": 1, "runs": [{"text": "Done"}]},
   {"op": "rename_heading",  "idx": 34, "text": "New Heading"},
+  {"op": "add_row",         "idx": 35, "after_row": 2, "cells": [{"runs": [{"text": "A"}]}]},
+  {"op": "delete_row",      "idx": 35, "row": 3},
   {"op": "delete",          "idx": 50},
   {"op": "add_after",       "idx": 37, "runs": [{"text": "Inserted"}], "clone_style_from": 37},
   {"op": "add_table_after", "idx": 37, "rows": [[{"runs": [{"text": "A"}]}]], "clone_style_from": 35},
-  {"op": "move",            "idx": 50, "after": 37}
+  {"op": "insert_image",    "idx": 37, "image_path": "fig.png", "width_cm": 15},
+  {"op": "move",            "idx": 50, "after": 37},
+  {"op": "reply_comment",   "comment_id": 1, "text": "Done.", "author": "AI"}
 ]
 ```
 
@@ -99,16 +109,21 @@ Key: node keys are body element indices (strings). Use these indices in patch in
 | `update_runs` | Replace all runs in paragraph | pPr preserved, run formatting rewritten |
 | `update_cell` | Change one table cell | Table structure + other cells untouched |
 | `rename_heading` | Change heading text | 100% — formatting preserved |
+| `add_row` | Add row to table after specified row | Clones trPr + tcPr from reference row |
+| `delete_row` | Delete row from table | 100% |
 | `delete` | Remove body element | 100% |
 | `add_after` | Insert paragraph after target | Style cloned from `clone_style_from` |
-| `add_table_after` | Insert table after target | tblPr/grid cloned from source |
+| `add_table_after` | Insert table after target | tblPr cloned, grid auto-generated |
+| `insert_image` | Insert image in new paragraph after target | New w:drawing element |
 | `move` | Relocate element to after target | 100% |
+| `reply_comment` | Add reply to comments.xml | New w:comment element |
 
 ### Execution Order
 
 patch.py handles idx stability automatically:
-1. Modifications first (update_text, update_runs, update_cell, rename_heading) — body length unchanged
-2. Structural changes (delete, add, move) — sorted by idx descending to prevent drift
+1. Modifications first (update_text, update_runs, update_cell, rename_heading, add_row, delete_row) — body length unchanged
+2. Structural changes (delete, add_after, add_table_after, insert_image, move) — sorted by idx descending to prevent drift
+3. Comment replies — applied to comments.xml after body ops
 
 ### What Is Preserved
 
@@ -130,5 +145,5 @@ patch.py handles idx stability automatically:
 
 ## How Much
 
-- **do**: 8 ops covering text edit, run replacement, cell edit, heading rename, delete, add paragraph, add table, move. Flat JSON with body-index keys, cell-level row/col coordinates, text summaries, section navigation index.
-- **don't**: No merged cell editing. No nested list manipulation. No cross-file changes (headers/footers/styles). No automatic re-extract after patch.
+- **do**: 12 ops covering text edit, run replacement, cell edit, heading rename, table row add/delete, delete, add paragraph, add table, insert image, move, reply comment. Scrape outputs flat JSON with body-index keys, inline images, inline comments, section navigation index.
+- **don't**: No merged cell editing. No nested list manipulation. No headers/footers/styles editing. No automatic re-extract after patch.

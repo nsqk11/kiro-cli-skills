@@ -1,23 +1,27 @@
 # docx-toolkit
 
-JSON-based docx editing toolkit for Kiro CLI.
+Two independent capabilities for `.docx` files:
 
-Extracts `.docx` body content into a flat JSON node map keyed by body index, LLM reads and writes change instructions, then patch applies changes by in-place modifying the original docx XML. Everything except the patched elements is preserved untouched.
+1. **Scrape** — extract body content into flat JSON for reading, analysis, or comparison (includes images and comments)
+2. **Modify** — use scraped indices to surgically patch the original docx XML in-place
+
+Everything except the patched elements is preserved untouched.
 
 ## Scripts
 
 | Script | Purpose |
 |--------|---------|
-| `extract.py` | docx → flat JSON (reading view + body-index locator) |
-| `patch.py` | instructions → docx (in-place XML surgery, no rebuild) |
+| `scrape.py` | docx → flat JSON (body-index keyed node map) |
+| `patch.py` | JSON instructions → docx (in-place XML surgery) |
 
 ## Quick Start
 
 ```bash
-# Extract docx → JSON
-python3 scripts/extract.py input.docx -o doc.json
+# Scrape only (read/analyze)
+python3 scripts/scrape.py input.docx -o doc.json
 
-# Apply patch instructions
+# Modify (scrape → patch)
+python3 scripts/scrape.py input.docx -o doc.json
 python3 scripts/patch.py input.docx instructions.json [-o output.docx]
 ```
 
@@ -31,17 +35,14 @@ Run `python3 <script> --help` for full usage.
 | `update_runs` | Replace all runs in paragraph |
 | `update_cell` | Change one table cell |
 | `rename_heading` | Change heading text |
+| `add_row` | Add row to table after specified row |
+| `delete_row` | Delete row from table |
 | `delete` | Remove body element |
 | `add_after` | Insert paragraph after target |
 | `add_table_after` | Insert table after target |
+| `insert_image` | Insert image in new paragraph after target |
 | `move` | Relocate element to after target |
-
-## Key Gotchas
-
-- Use `delete` (not `update_runs` with empty text) to remove template placeholders — empty runs leave blank lines
-- `update_runs` strips rPr from original runs — include formatting in new runs or fix rPr after patching
-- Multiple `add_after` on same idx → reverse order — use Python `addnext()` for bulk forward-order insertions
-- `clone_style_from` does not set heading level — use direct Python insertion for new headings
+| `reply_comment` | Add reply to comments.xml |
 
 ## Requirements
 
