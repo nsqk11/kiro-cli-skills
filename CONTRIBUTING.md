@@ -10,11 +10,11 @@ Thanks for your interest in improving this skill!
 
 ## Skill Design Standard
 
-All skills must follow the [5W2H](prompts/5w2h.md) framework:
+All skills must follow the [5W2H](self-improving/prompts/5w2h.md) framework:
 
 - 7 dimensions: Why, What, Who, When, Where, How, How much
 - Each dimension has `do` and `don't`
-- Dimensions must be [MECE](prompts/mece.md) (mutually exclusive, collectively exhaustive)
+- Dimensions must be [MECE](self-improving/prompts/mece.md) (mutually exclusive, collectively exhaustive)
 - Written in instruction-style for AI execution, not human documentation
 
 ## Guidelines
