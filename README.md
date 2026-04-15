@@ -5,10 +5,10 @@
 **Supercharge your [Kiro CLI](https://github.com/kirolabs/kiro) with custom skills.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Shell](https://img.shields.io/badge/Shell-Bash_4%2B-green.svg)](#prerequisites)
-[![Skills](https://img.shields.io/badge/Skills-2-blueviolet.svg)](#skills)
+[![Python](https://img.shields.io/badge/Python-3.12-blue.svg)](#prerequisites)
+[![Skills](https://img.shields.io/badge/Skills-2-blueviolet.svg)](#-skills)
 
-*A modular collection of AI agent skills — each one a self-contained unit of capability that plugs into Kiro's skill system.*
+*A modular collection of AI agent skills — each skill is a self-contained unit that plugs into Kiro's skill system via a unified hook dispatcher.*
 
 </div>
 
@@ -24,7 +24,7 @@ A closed-loop learning system that makes your Kiro agent get smarter over time.
 - **Learn** by reviewing and graduating entries at session start
 - **Improve** by routing mature knowledge back into skill files
 
-Single-file data store (`mem.json`) with full CLI. Hook-driven — activates automatically, no manual intervention.
+Single-file data store (`mem.json`) with full Python CLI. Hook-driven — activates automatically, no manual intervention.
 
 ### [Docx Toolkit](docx-toolkit/)
 
@@ -37,12 +37,42 @@ Works with any `.docx`: reports, specs, templates. Preserves formatting, styles,
 
 ---
 
+## 🔌 Hook Dispatcher
+
+All hooks are managed by a single dispatcher (`hooks/dispatch.sh`). Skills register their hook scripts using three annotations:
+
+```python
+# @hook agent-spawn
+# @priority 10
+# @description Load memory and pending entries
+```
+
+All three annotations must be present — missing any one means the script is skipped.
+
+The dispatcher scans the repo for matching scripts, sorts by priority, and executes them in order. Agent config only needs one entry per hook type:
+
+```jsonc
+{
+  "hooks": {
+    "agentSpawn":        [{ "command": "hooks/dispatch.sh agent-spawn" }],
+    "userPromptSubmit":  [{ "command": "hooks/dispatch.sh user-prompt-submit" }],
+    "preToolUse":        [{ "command": "hooks/dispatch.sh pre-tool-use" }],
+    "postToolUse":       [{ "command": "hooks/dispatch.sh post-tool-use" }],
+    "stop":              [{ "command": "hooks/dispatch.sh stop" }]
+  }
+}
+```
+
+Adding a new hook script to any skill is zero-config — just add the annotations and the dispatcher picks it up.
+
+---
+
 ## 📋 Prerequisites
 
-- [Kiro CLI](https://github.com/kirolabs/kiro) installed
+- [Kiro CLI](https://github.com/kirolabs/kiro)
+- Python 3.12+
 - Bash ≥ 4.0
 - `jq` ≥ 1.6
-- Python 3.8+ (for docx-toolkit)
 
 ## 🚀 Installation
 
@@ -57,14 +87,24 @@ bash install.sh                # → ~/.kiro/skills/kiro-cli-skills
 ```
 kiro-cli-skills/
 ├── hooks/
-│   └── dispatch.sh         Hook dispatcher (scans @hook annotations)
-├── self-improving/         Closed-loop learning system
-│   ├── scripts/            memory.py, hook scripts, _common.py
-│   ├── prompts/            proactive-agent.md, capture-check.md
-│   └── examples/           agent config template
-├── docx-toolkit/           docx ↔ JSON editing
-│   └── scripts/            scrape.py, patch.py
-├── prompts/                Shared skill design frameworks (5W2H, MECE)
+│   └── dispatch.sh             Unified hook dispatcher
+├── self-improving/
+│   ├── SKILL.md                Skill definition (5W2H)
+│   ├── scripts/
+│   │   ├── memory.py           Data CLI (add/resolve/graduate/list/search/clean)
+│   │   ├── _common.py          Shared utilities for hook scripts
+│   │   ├── inject-context.py   @hook agent-spawn     p10
+│   │   ├── load-memory.py      @hook agent-spawn     p20
+│   │   ├── check-review.py     @hook agent-spawn     p30
+│   │   ├── inject-capture.py   @hook user-prompt-submit p10
+│   │   ├── log-error.py        @hook post-tool-use   p10
+│   │   └── session-review.py   @hook stop            p10
+│   ├── prompts/                Injection templates (proactive-agent, capture-check)
+│   └── examples/               Agent config template
+├── docx-toolkit/
+│   ├── SKILL.md
+│   └── scripts/                scrape.py, patch.py
+├── prompts/                    Shared design frameworks (5W2H, MECE)
 ├── install.sh
 └── LICENSE
 ```
