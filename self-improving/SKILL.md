@@ -18,6 +18,7 @@ bash $SKILL_DIR/scripts/mem.sh graduate -i ID -S "section" [-k "skill-name"]
 bash $SKILL_DIR/scripts/mem.sh list     [--status S] [--skill S] [--type T]
 bash $SKILL_DIR/scripts/mem.sh search   -k "keyword"
 bash $SKILL_DIR/scripts/mem.sh memory   # graduated + skill:none → context loading
+bash $SKILL_DIR/scripts/mem.sh clean    [--apply]  # remove graduated-in-skill + done>7d
 ```
 
 ## Why
@@ -121,6 +122,7 @@ User correction always wins — overwrite without asking.
 1. `bash $SKILL_DIR/scripts/mem.sh list --status graduated --skill none` — unattributed entries
 2. Merge into corresponding skill's SKILL.md
 3. Re-graduate with skill: `bash $SKILL_DIR/scripts/mem.sh graduate -i ID -S "section" -k "skill-name"`
+4. `bash $SKILL_DIR/scripts/mem.sh clean --apply` — remove graduated-in-skill + stale done entries
 
 #### Change Control
 
@@ -128,6 +130,7 @@ User correction always wins — overwrite without asking.
 |------|--------|
 | Minor (tip, wording, example) | Auto-apply, notify |
 | Major (create/delete skill, triggers, restructure) | Propose first, wait for confirmation |
+| Design/implementation | Design discussion must reach consensus before writing code |
 | Script/JSON change | Auto-apply, then update corresponding SKILL.md to document the change |
 
 #### Skill Discovery

@@ -86,6 +86,24 @@ memory)
   jq -r '.[] | select(.status=="graduated" and .skill=="none") | "[\(.section)] \(.summary)"' "$DATA"
   ;;
 
+clean)
+  # Remove: graduated+skill!=none (already in skill), done entries older than 7 days
+  dry=true
+  [[ " $* " == *" --apply "* ]] && dry=false
+  cutoff=$(date -d '7 days ago' +%Y-%m-%d 2>/dev/null || date -v-7d +%Y-%m-%d)
+  skilled=$(jq --arg c "$cutoff" '[.[] | select(.status=="graduated" and .skill!="none")] | length' "$DATA")
+  stale=$(jq --arg c "$cutoff" '[.[] | select(.status=="done" and .date <= $c)] | length' "$DATA")
+  echo "Cleanable: $skilled graduated (in skill) + $stale done (>7d) = $(( skilled + stale ))"
+  if $dry; then
+    echo "(dry run — pass --apply to execute)"
+  else
+    jq --arg c "$cutoff" '[.[] | select((.status=="graduated" and .skill!="none") or (.status=="done" and .date <= $c) | not)]' \
+      "$DATA" > "$DATA.tmp" && cp -f "$DATA.tmp" "$DATA" && rm -f "$DATA.tmp"
+    remaining=$(jq 'length' "$DATA")
+    echo "OK: cleaned. $remaining entries remaining."
+  fi
+  ;;
+
 help)
   cat <<'EOF'
 mem — self-improving memory CLI
@@ -95,6 +113,7 @@ mem — self-improving memory CLI
   list     [--status S] [--skill S] [--type T]
   search   -k "keyword"
   memory   (graduated + skill:none for context loading)
+  clean    [--apply]  (remove graduated-in-skill + done>7d; dry run by default)
 EOF
   ;;
 
