@@ -14,7 +14,7 @@ printf "${YELLOW}kiro-cli-skills Installer${NC}\n\n"
 printf "Source:  %s\n" "$SRC_DIR"
 printf "Target:  %s\n\n" "$TARGET"
 
-# Check dependencies
+# Check CLI dependencies
 MISSING=""
 for cmd in bash jq python3.12; do
   command -v "$cmd" >/dev/null 2>&1 || MISSING="$MISSING $cmd"
@@ -22,6 +22,16 @@ done
 if [ -n "$MISSING" ]; then
   printf "${RED}Missing required tools:%s${NC}\n" "$MISSING"
   exit 1
+fi
+
+# Check Python libraries
+PY_MISSING=""
+for mod in docx; do
+  python3.12 -c "import $mod" 2>/dev/null || PY_MISSING="$PY_MISSING python-docx"
+done
+if [ -n "$PY_MISSING" ]; then
+  printf "${YELLOW}Missing Python packages:%s${NC}\n" "$PY_MISSING"
+  printf "Install with: python3.12 -m pip install%s\n\n" "$PY_MISSING"
 fi
 
 mkdir -p "$TARGET"
