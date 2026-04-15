@@ -54,11 +54,11 @@ The dispatcher scans the repo for matching scripts, sorts by priority, and execu
 ```jsonc
 {
   "hooks": {
-    "agentSpawn":        [{ "command": "hooks/dispatch.sh agent-spawn" }],
-    "userPromptSubmit":  [{ "command": "hooks/dispatch.sh user-prompt-submit" }],
-    "preToolUse":        [{ "command": "hooks/dispatch.sh pre-tool-use" }],
-    "postToolUse":       [{ "command": "hooks/dispatch.sh post-tool-use" }],
-    "stop":              [{ "command": "hooks/dispatch.sh stop" }]
+    "agentSpawn":        [{ "command": "bash hooks/dispatch.sh agent-spawn" }],
+    "userPromptSubmit":  [{ "command": "bash hooks/dispatch.sh user-prompt-submit" }],
+    "preToolUse":        [{ "command": "bash hooks/dispatch.sh pre-tool-use" }],
+    "postToolUse":       [{ "command": "bash hooks/dispatch.sh post-tool-use" }],
+    "stop":              [{ "command": "bash hooks/dispatch.sh stop" }]
   }
 }
 ```

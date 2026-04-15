@@ -30,11 +30,11 @@ Agent config only needs the dispatcher:
     "file://<SKILL_PATH>/SKILL.md"
   ],
   "hooks": {
-    "agentSpawn":        [{ "command": "<REPO_ROOT>/hooks/dispatch.sh agent-spawn" }],
-    "userPromptSubmit":  [{ "command": "<REPO_ROOT>/hooks/dispatch.sh user-prompt-submit" }],
-    "preToolUse":        [{ "command": "<REPO_ROOT>/hooks/dispatch.sh pre-tool-use" }],
-    "postToolUse":       [{ "command": "<REPO_ROOT>/hooks/dispatch.sh post-tool-use" }],
-    "stop":              [{ "command": "<REPO_ROOT>/hooks/dispatch.sh stop" }]
+    "agentSpawn":        [{ "command": "bash <REPO_ROOT>/hooks/dispatch.sh agent-spawn" }],
+    "userPromptSubmit":  [{ "command": "bash <REPO_ROOT>/hooks/dispatch.sh user-prompt-submit" }],
+    "preToolUse":        [{ "command": "bash <REPO_ROOT>/hooks/dispatch.sh pre-tool-use" }],
+    "postToolUse":       [{ "command": "bash <REPO_ROOT>/hooks/dispatch.sh post-tool-use" }],
+    "stop":              [{ "command": "bash <REPO_ROOT>/hooks/dispatch.sh stop" }]
   }
 }
 ```

@@ -3,32 +3,38 @@
   "model": "claude-sonnet",
 
   "resources": [
-    "file://<SKILL_PATH>/SKILL.md"
+    "file://<REPO_ROOT>/self-improving/SKILL.md"
   ],
 
   "hooks": {
     "agentSpawn": [
       {
-        "command": "<SKILL_PATH>/hooks/agent-spawn.sh",
-        "description": "Load pending log entries into context"
+        "command": "bash <REPO_ROOT>/hooks/dispatch.sh agent-spawn",
+        "description": "Load context, memory, and review check"
       }
     ],
     "userPromptSubmit": [
       {
-        "command": "<SKILL_PATH>/hooks/user-prompt-submit.sh",
-        "description": "Detect correction signals in user messages"
+        "command": "bash <REPO_ROOT>/hooks/dispatch.sh user-prompt-submit",
+        "description": "Inject proactive-agent and capture-check"
+      }
+    ],
+    "preToolUse": [
+      {
+        "command": "bash <REPO_ROOT>/hooks/dispatch.sh pre-tool-use",
+        "description": "Pre-tool validation"
       }
     ],
     "postToolUse": [
       {
-        "command": "<SKILL_PATH>/hooks/post-tool-use.sh",
-        "description": "Detect errors from tool output and log them"
+        "command": "bash <REPO_ROOT>/hooks/dispatch.sh post-tool-use",
+        "description": "Auto-log tool errors"
       }
     ],
     "stop": [
       {
-        "command": "<SKILL_PATH>/hooks/stop.sh",
-        "description": "Trigger session-end review and auto-cleanup"
+        "command": "bash <REPO_ROOT>/hooks/dispatch.sh stop",
+        "description": "Session review prompt"
       }
     ]
   }
