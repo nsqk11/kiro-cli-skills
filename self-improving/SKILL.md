@@ -5,7 +5,7 @@ description: "Closed-loop system (Capture → Learn → Improve) for continuous 
 
 # Self-Improving
 
-Reference: [5W2H](prompts/5w2h.md) | [MECE](prompts/mece.md)
+Reference: [5W2H](../prompts/5w2h.md) | [MECE](../prompts/mece.md)
 
 ## Data Store
 

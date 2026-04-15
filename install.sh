@@ -27,7 +27,7 @@ fi
 mkdir -p "$TARGET"
 
 # Copy root files
-for item in README.md LICENSE CONTRIBUTING.md install.sh .gitignore; do
+for item in README.md LICENSE install.sh .gitignore prompts; do
   [ -e "$SRC_DIR/$item" ] && cp -f "$SRC_DIR/$item" "$TARGET/"
 done
 

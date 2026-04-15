@@ -1,56 +1,82 @@
-# kiro-cli-skills
+<div align="center">
 
-A collection of custom skills for [Kiro CLI](https://github.com/kirolabs/kiro).
+# ⚡ kiro-cli-skills
 
-## Skills
+**Supercharge your [Kiro CLI](https://github.com/kirolabs/kiro) with custom skills.**
 
-| Skill | Description |
-|-------|-------------|
-| [self-improving](self-improving/) | Closed-loop system (Capture → Learn → Improve) for continuous self-improvement |
-| [docx-toolkit](docx-toolkit/) | JSON-based docx editing — extract to JSON, edit via change instructions, apply back to docx |
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Shell](https://img.shields.io/badge/Shell-Bash_4%2B-green.svg)](#prerequisites)
+[![Skills](https://img.shields.io/badge/Skills-2-blueviolet.svg)](#skills)
 
-## Prerequisites
+*A modular collection of AI agent skills — each one a self-contained unit of capability that plugs into Kiro's skill system.*
 
-- bash ≥ 4.0
-- jq
+</div>
+
+---
+
+## 🧩 Skills
+
+### [Self-Improving](self-improving/)
+
+A closed-loop learning system that makes your Kiro agent get smarter over time.
+
+- **Capture** errors, corrections, and discoveries automatically via hooks
+- **Learn** by reviewing and graduating entries at session start
+- **Improve** by routing mature knowledge back into skill files
+
+Single-file data store (`mem.json`) with full CLI. Hook-driven — activates automatically, no manual intervention.
+
+### [Docx Toolkit](docx-toolkit/)
+
+JSON-based surgical editing for `.docx` files — no Word required.
+
+- **Scrape** — extract document body into flat JSON with stable indices
+- **Patch** — apply targeted changes back to the original docx XML
+
+Works with any `.docx`: reports, specs, templates. Preserves formatting, styles, and structure.
+
+---
+
+## 📋 Prerequisites
+
 - [Kiro CLI](https://github.com/kirolabs/kiro) installed
+- Bash ≥ 4.0
+- `jq` ≥ 1.6
+- Python 3.8+ (for docx-toolkit)
 
-## Installation
+## 🚀 Installation
 
 ```bash
 git clone https://github.com/nsqk11/kiro-cli-skills.git
 cd kiro-cli-skills
-bash install.sh            # installs to ~/.kiro/skills/kiro-cli-skills
+bash install.sh                # → ~/.kiro/skills/kiro-cli-skills
 ```
 
-## Quick Start
-
-**self-improving** — add to your agent config (see [example](self-improving/examples/agent-config.json)), then start a Kiro session. The system activates automatically via hooks.
-
-**docx-toolkit** — extract and patch docx files:
-
-```bash
-python3 docx-toolkit/scripts/scrape.py input.docx -o content.json
-# edit content.json ...
-python3 docx-toolkit/scripts/patch.py input.docx changes.json -o output.docx
-```
-
-## Structure
+## 📁 Structure
 
 ```
 kiro-cli-skills/
-├── self-improving/     # Memory, learning, skill improvement
-│   ├── scripts/        # mem.sh, extract-skill.sh
-│   ├── hooks/          # agent-spawn, post-tool-use, stop, user-prompt-submit
-│   ├── prompts/        # 5w2h.md, mece.md
-│   └── examples/       # agent-config.json
-├── docx-toolkit/       # docx ↔ JSON editing toolkit
-│   └── scripts/        # scrape.py, patch.py
+├── self-improving/         Closed-loop learning system
+│   ├── scripts/            mem.sh CLI, extract-skill.sh
+│   ├── hooks/              agent-spawn, post-tool-use, stop, user-prompt-submit
+│   └── examples/           agent config template
+├── docx-toolkit/           docx ↔ JSON editing
+│   └── scripts/            scrape.py, patch.py
+├── prompts/                Shared skill design frameworks (5W2H, MECE)
 ├── install.sh
-├── CONTRIBUTING.md
 └── LICENSE
 ```
 
-## License
+## 🛠️ Skill Design
+
+All skills follow the **[5W2H](prompts/5w2h.md)** framework with **[MECE](prompts/mece.md)** coverage:
+
+> **Why** · **What** · **Who** · **When** · **Where** · **How** · **How much**
+>
+> Each dimension has explicit `do` and `don't` boundaries.
+
+See each skill's `SKILL.md` for the full specification.
+
+## 📄 License
 
 [MIT](LICENSE)
