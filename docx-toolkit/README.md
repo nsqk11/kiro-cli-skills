@@ -18,14 +18,14 @@ Everything except the patched elements is preserved untouched.
 
 ```bash
 # Scrape only (read/analyze)
-python3 scripts/scrape.py input.docx -o doc.json
+python3.12 scripts/scrape.py input.docx -o doc.json
 
 # Modify (scrape → patch)
-python3 scripts/scrape.py input.docx -o doc.json
-python3 scripts/patch.py input.docx instructions.json [-o output.docx]
+python3.12 scripts/scrape.py input.docx -o doc.json
+python3.12 scripts/patch.py input.docx instructions.json [-o output.docx]
 ```
 
-Run `python3 <script> --help` for full usage.
+Run `python3.12 <script> --help` for full usage.
 
 ## Patch Operations
 
@@ -46,5 +46,5 @@ Run `python3 <script> --help` for full usage.
 
 ## Requirements
 
-- Python 3.6+
+- Python 3.12+
 - python-docx

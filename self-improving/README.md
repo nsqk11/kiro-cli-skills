@@ -32,6 +32,7 @@ Agent config only needs the dispatcher:
   "hooks": {
     "agentSpawn":        [{ "command": "<REPO_ROOT>/hooks/dispatch.sh agent-spawn" }],
     "userPromptSubmit":  [{ "command": "<REPO_ROOT>/hooks/dispatch.sh user-prompt-submit" }],
+    "preToolUse":        [{ "command": "<REPO_ROOT>/hooks/dispatch.sh pre-tool-use" }],
     "postToolUse":       [{ "command": "<REPO_ROOT>/hooks/dispatch.sh post-tool-use" }],
     "stop":              [{ "command": "<REPO_ROOT>/hooks/dispatch.sh stop" }]
   }
