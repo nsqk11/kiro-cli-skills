@@ -9,16 +9,16 @@ Reference: [5W2H](../prompts/5w2h.md) | [MECE](../prompts/mece.md)
 
 ## Data Store
 
-Single file `.data/mem.json` managed by `$SKILL_DIR/scripts/mem.sh`. Entry lifecycle: `open → done → graduated`.
+Single file `.data/mem.json` managed by `$SKILL_DIR/scripts/memory.py`. Entry lifecycle: `open → done → graduated`.
 
 ```
-bash $SKILL_DIR/scripts/mem.sh add      -t TYPE -k "kw,..." -s "summary" [-d "detail"]
-bash $SKILL_DIR/scripts/mem.sh resolve  -i ID [-r "resolution"]
-bash $SKILL_DIR/scripts/mem.sh graduate -i ID -S "section" [-k "skill-name"]
-bash $SKILL_DIR/scripts/mem.sh list     [--status S] [--skill S] [--type T]
-bash $SKILL_DIR/scripts/mem.sh search   -k "keyword"
-bash $SKILL_DIR/scripts/mem.sh memory   # graduated + skill:none → context loading
-bash $SKILL_DIR/scripts/mem.sh clean    [--apply]  # remove graduated-in-skill + done>7d
+python3.12 $SKILL_DIR/scripts/memory.py add      -t TYPE -k "kw,..." -s "summary" [-d "detail"]
+python3.12 $SKILL_DIR/scripts/memory.py resolve  -i ID [-r "resolution"]
+python3.12 $SKILL_DIR/scripts/memory.py graduate -i ID -S "section" [-k "skill-name"]
+python3.12 $SKILL_DIR/scripts/memory.py list     [--status S] [--skill S] [--type T]
+python3.12 $SKILL_DIR/scripts/memory.py search   -q "keyword"
+python3.12 $SKILL_DIR/scripts/memory.py memory   # graduated + skill:none → context loading
+python3.12 $SKILL_DIR/scripts/memory.py clean    [--apply]  # remove graduated-in-skill + done>7d
 ```
 
 ## Why
@@ -42,11 +42,11 @@ bash $SKILL_DIR/scripts/mem.sh clean    [--apply]  # remove graduated-in-skill +
   - Command/tool fails, user corrects, knowledge outdated, better approach, convention/decision → Capture
   - New session with pending entries → Learn (tiered by count: ≤5 silent, 6-15 suggest, >15 mandatory)
   - Same topic ≥ 3 hits → Improve
-- **don't**: mem.sh auto-deduplicates by keyword. If duplicate detected, review existing entry instead.
+- **don't**: memory.py auto-deduplicates by keyword. If duplicate detected, review existing entry instead.
 
 ## Where
 
-- **do**: `.data/mem.json` (single data store) | `$SKILL_DIR/scripts/mem.sh` (CLI) | `data-template/` (template dir, not hidden)
+- **do**: `.data/mem.json` (single data store) | `$SKILL_DIR/scripts/memory.py` (CLI) | `data-template/` (template dir, not hidden)
 - **don't**: Does not touch other skills' resource paths. Note: self-improving dir itself is a git repo — use sufficient maxdepth when searching for `.git`.
 
 ## How
@@ -63,8 +63,8 @@ Proactive means independently thinking, exploring, and solving — not blind obe
 
 ### Capture
 
-1. Detect event → `bash $SKILL_DIR/scripts/mem.sh add -t TYPE -k "keywords" -s "summary"`
-2. mem.sh handles dedup automatically (exit 2 = duplicate found)
+1. Detect event → `python3.12 $SKILL_DIR/scripts/memory.py add -t TYPE -k "keywords" -s "summary"`
+2. memory.py handles dedup automatically (exit 2 = duplicate found)
 3. Do not chain commands — separate read and write calls
 
 #### Event Types
@@ -98,10 +98,10 @@ If you realize mid-conversation a correction/request wasn't captured — log the
 
 ### Learn
 
-1. `bash $SKILL_DIR/scripts/mem.sh list --status open` — review pending entries
-2. Resolve entries: `bash $SKILL_DIR/scripts/mem.sh resolve -i ID -r "resolution"`
-3. Graduate mature entries: `bash $SKILL_DIR/scripts/mem.sh graduate -i ID -S "section"` (skill:none by default)
-4. If entry belongs to a skill: `bash $SKILL_DIR/scripts/mem.sh graduate -i ID -S "section" -k "skill-name"`
+1. `python3.12 $SKILL_DIR/scripts/memory.py list --status open` — review pending entries
+2. Resolve entries: `python3.12 $SKILL_DIR/scripts/memory.py resolve -i ID -r "resolution"`
+3. Graduate mature entries: `python3.12 $SKILL_DIR/scripts/memory.py graduate -i ID -S "section"` (skill:none by default)
+4. If entry belongs to a skill: `python3.12 $SKILL_DIR/scripts/memory.py graduate -i ID -S "section" -k "skill-name"`
 
 User correction always wins — overwrite without asking.
 
@@ -119,10 +119,10 @@ User correction always wins — overwrite without asking.
 3. agentSpawn hook injects memory + pending-logs into context; `file://` provides the full SKILL.md
 
 #### Graduated → Skill Feedback
-1. `bash $SKILL_DIR/scripts/mem.sh list --status graduated --skill none` — unattributed entries
+1. `python3.12 $SKILL_DIR/scripts/memory.py list --status graduated --skill none` — unattributed entries
 2. Merge into corresponding skill's SKILL.md
-3. Re-graduate with skill: `bash $SKILL_DIR/scripts/mem.sh graduate -i ID -S "section" -k "skill-name"`
-4. `bash $SKILL_DIR/scripts/mem.sh clean --apply` — remove graduated-in-skill + stale done entries
+3. Re-graduate with skill: `python3.12 $SKILL_DIR/scripts/memory.py graduate -i ID -S "section" -k "skill-name"`
+4. `python3.12 $SKILL_DIR/scripts/memory.py clean --apply` — remove graduated-in-skill + stale done entries
 
 #### Change Control
 
@@ -151,4 +151,4 @@ At session end (stop hook), if significant work was done:
 ## How much
 
 - **do**: One entry per event. Learn tiered: ≤5 silent, 6-15 suggest, >15 mandatory — no leftovers. Graduation: correction → immediate; others → ≥2 hits + ≥3 days. Improve: ≥ 3 hits triggers skill mod. agentSpawn loads memory + pending.
-- **don't**: No duplicates (mem.sh enforces). Don't modify skills below threshold. Don't execute major changes without confirmation.
+- **don't**: No duplicates (memory.py enforces). Don't modify skills below threshold. Don't execute major changes without confirmation.

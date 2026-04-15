@@ -16,7 +16,7 @@ printf "Target:  %s\n\n" "$TARGET"
 
 # Check dependencies
 MISSING=""
-for cmd in bash jq grep sed awk; do
+for cmd in bash jq python3.12; do
   command -v "$cmd" >/dev/null 2>&1 || MISSING="$MISSING $cmd"
 done
 if [ -n "$MISSING" ]; then
@@ -27,15 +27,16 @@ fi
 mkdir -p "$TARGET"
 
 # Copy root files
-for item in README.md LICENSE install.sh .gitignore prompts; do
+for item in README.md LICENSE install.sh .gitignore prompts hooks; do
   [ -e "$SRC_DIR/$item" ] && cp -f "$SRC_DIR/$item" "$TARGET/"
 done
 
 # Install each skill directory
 for skill_dir in "$SRC_DIR"/*/; do
   skill="$(basename "$skill_dir")"
-  # Skip hidden dirs
+  # Skip hidden dirs and non-skill dirs
   [[ "$skill" == .* ]] && continue
+  [[ "$skill" == "hooks" || "$skill" == "prompts" ]] && continue
   [ -f "$skill_dir/SKILL.md" ] || continue
 
   printf "Installing skill: %s\n" "$skill"

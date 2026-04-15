@@ -56,9 +56,11 @@ bash install.sh                # → ~/.kiro/skills/kiro-cli-skills
 
 ```
 kiro-cli-skills/
+├── hooks/
+│   └── dispatch.sh         Hook dispatcher (scans @hook annotations)
 ├── self-improving/         Closed-loop learning system
-│   ├── scripts/            mem.sh CLI, extract-skill.sh
-│   ├── hooks/              agent-spawn, post-tool-use, stop, user-prompt-submit
+│   ├── scripts/            memory.py, hook scripts, _common.py
+│   ├── prompts/            proactive-agent.md, capture-check.md
 │   └── examples/           agent config template
 ├── docx-toolkit/           docx ↔ JSON editing
 │   └── scripts/            scrape.py, patch.py
