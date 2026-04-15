@@ -30,6 +30,8 @@ SORTED=$(printf '%s\n' "${SCRIPTS[@]}" | sort -t'|' -k1 -n)
 
 # Execute each script
 while IFS='|' read -r pri script; do
+  name=$(basename "$script")
+  echo "[dispatch] $HOOK → $name (p$pri)" >&2
   if [[ "$script" == *.py ]]; then
     if [ -n "$STDIN_DATA" ]; then
       printf '%s' "$STDIN_DATA" | python3.12 "$script"
